@@ -14,26 +14,7 @@ import utils.goProHTTPWebcamVars as goProHTTPWebcamVars
 from utils.timeFunctions import countdown
 
 class goProHero10:
-    """
-    https://gopro.github.io/OpenGoPro/http
-    
-    
-    https://community.gopro.com/s/article/GoPro-Webcam?language=en_US
-    Webcam Mode resolution limitations: "Here you can choose between [1080p] (default) or [720p]."
 
-    Webcam Resolution
-    ID 	Resolution 	Supported Cameras
-    4 	480p 	Hero 10 Black, Hero 9 Black
-    7 	720p 	Hero 12 Black, Hero 9 Black, Hero 10 Black, Hero 11 Black
-    12 	1080p 	Hero 12 Black, Hero 9 Black, Hero 10 Black, Hero 11 Black
-
-    Webcam Field-of-View
-    ID 	FOV 	Supported Cameras
-    0 	Wide 	Hero 12 Black, Hero 9 Black, Hero 10 Black, Hero 11 Black
-    2 	Narrow 	Hero 12 Black, Hero 9 Black, Hero 10 Black, Hero 11 Black
-    3 	Superview 	Hero 12 Black, Hero 9 Black, Hero 10 Black, Hero 11 Black
-    4 	Linear 	Hero 12 Black, Hero 9 Black, Hero 10 Black, Hero 11 Black
-    """
     
     #Control Vars:
     turboTransfer = goProHTTPControlVars.turboTransfer
