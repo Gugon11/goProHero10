@@ -87,7 +87,7 @@ def keyPressHandler():
                 del goProCamera
             elif (cv2.waitKey(1) & 0xFF == ord('1')):
                 gopro.startWebcam["params"]["res"] = gopro.resolutions["1080p"]
-            elif (cv2.waitKey(1) & 0xFF == ord('1')):
+            elif (cv2.waitKey(1) & 0xFF == ord('2')):
                 gopro.startWebcam["params"]["res"] = gopro.resolutions["720p"]
             elif (cv2.waitKey(1) & 0xFF == ord('3')):
                 gopro.startWebcam["params"]["res"] = gopro.resolutions["480p"]

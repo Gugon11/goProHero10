@@ -1,7 +1,7 @@
 import traceback
 import yaml
 
-def readConfig(filename = "config.yml", moduleName = ""):
+def readConfig(filename = "goProHero10\src\Camera\config.yml", moduleName = ""):
     """
     [INPUTs]: filename {STR}, moduleName = ""
     [OUTPUTs]: moduleContent {DICT}
