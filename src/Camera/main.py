@@ -4,15 +4,13 @@ import logging
 import threading
 import traceback
 
-
+import cv2
 from camera import camera
 from goProHero10 import goProHero10
 
 from utils import logger
 from utils.config import readConfig
 from utils.timeFunctions import countdown
-
-import cv2
 
 
 #----------------------------------------------------------------
@@ -78,9 +76,9 @@ print(f"Current Camera Status: {currentStatus}.")
 
 #----------------------------------------------------------------
 
-
+'''
 def keyPressHandler():
-    #not used
+    not used
     while True:
         try:
             if (cv2.waitKey(1) & 0xFF == ord('q')):
@@ -97,12 +95,40 @@ def keyPressHandler():
         except:
             pass
         #end-try-except
+        '''
 #end-def
 
 #threadKeyPress = threading.Thread(target = keyPressHandler, args=[])
 #threadKeyPress.start()
+#----------------------------------------------------------------
+def pose_estimation(frame, aruco_dict, matrix_coefficients, distortion_coefficients):
+    matrix_coefficients= [[2.73348997e+03, 0.00000000e+00, 3.89633657e+02],
+                        [0.00000000e+00, 1.69996987e+03, 2.07163499e+02],
+                        [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]]
+    distortion_coefficients= 2.744205026701205
+    aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
+    
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    cv2.aruco_dict = cv2.aruco.Dictionary_get(aruco_dict)
+    parameters = cv2.aruco.DetectorParameters_create()
 
+    corners, ids, rejected_img_points = cv2.aruco.detectMarkers(gray, cv2.aruco_dict,parameters=parameters,
+        cameraMatrix=matrix_coefficients,
+        distCoeff=distortion_coefficients)
+    
+    # If markers are detected
+    if len(corners) > 0:
+        for i in range(0, len(ids)):
+            # Estimate pose of each marker and return the values rvec and tvec---(different from those of camera coefficients)
+            rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.02, matrix_coefficients,
+                                                                       distortion_coefficients)
+            # Draw a square around the markers
+            cv2.aruco.drawDetectedMarkers(frame, corners)
 
+            # Draw Axis
+            cv2.aruco.drawAxis(frame, matrix_coefficients, distortion_coefficients, rvec, tvec, 0.01)  
+            
+    return frame
 #----------------------------------------------------------------
 #Path to save the output images (when the user presses key 'p')
 savePath = os.path.join(os.getcwd(), "images")
