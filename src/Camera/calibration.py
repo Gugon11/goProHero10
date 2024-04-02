@@ -1,109 +1,73 @@
 import numpy as np
-import cv2 as cv
+import cv2
 import glob
 import pickle
 import os
+from glob import glob
 
+# Define the size of the chessboard pattern used for calibration
+pattern_size = (7, 9)
 
-################ FIND CHESSBOARD CORNERS - OBJECT POINTS AND IMAGE POINTS #############################
+# Termination criteria for corner sub pix
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-b = 7
-a = 9
-#chessboardSize = (9,6)
-chessboardSize = (a, b)
-frameSize = (640,480)
+# Create arrays to store object points (3D points) and image points (2D points)
+objpoints = []  # 3D points in real world space
+imgpoints = []  # 2D points in image plane
 
+# Define the real world coordinates of the chessboard pattern
+objp = np.zeros((pattern_size[0] * pattern_size[1], 3), np.float32)
+objp[:, :2] = np.mgrid[0:pattern_size[0], 0:pattern_size[1]].T.reshape(-1, 2)
 
+# Directory containing calibration images
+calibration_dir = "goProHero10/src/Camera/images"
+calibration_images = glob(calibration_dir + "/*.png")
+print(len(calibration_images))
 
-# termination criteria
-criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+for img_path in calibration_images:
+    calibration_image = cv2.imread(img_path)
+    gray = cv2.cvtColor(calibration_image, cv2.COLOR_BGR2GRAY)
 
+    # Find the chessboard corners and refine them
+    ret, corners = cv2.findChessboardCorners(gray, pattern_size, None)
 
-# prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-objp = np.zeros((chessboardSize[0] * chessboardSize[1], 3), np.float32)
-objp[:,:2] = np.mgrid[0:chessboardSize[0],0:chessboardSize[1]].T.reshape(-1,2)
-
-size_of_chessboard_squares_mm = 20
-objp = objp * size_of_chessboard_squares_mm
-
-
-# Arrays to store object points and image points from all the images.
-objpoints = [] # 3d point in real world space
-imgpoints = [] # 2d points in image plane.
-
-
-
-#images = glob.glob('/images/*.png')
-images = glob.glob(os.path.join(os.getcwd(), 'images', '*.png'))
-
-
-
-
-
-
-savePath = os.path.join(os.getcwd(), "calibrated_chessboards")
-if (os.path.isdir(savePath) is not True):
-    try:
-        os.mkdir(savePath)
-    except:
-        pass
-#end-if-else
-
-newImagePrefix = "img_cal_"
-newImageExtension = ".png"
-maxLeadingZeros = 4
-
-
-
-
-
-
-imgCounter = 0
-for image in images:
-    print(f"Reading {image} ...")
-    img = cv.imread(image)
-    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-
-    # Find the chess board corners
-    ret, corners = cv.findChessboardCorners(gray, chessboardSize, None)
-
-    # If found, add object points, image points (after refining them)
-    if ret == True:
-
+    if ret:
         objpoints.append(objp)
-        corners2 = cv.cornerSubPix(gray, corners, (11,11), (-1,-1), criteria)
-        imgpoints.append(corners)
 
-        # Draw and display the corners
-        cv.drawChessboardCorners(img, chessboardSize, corners2, ret)
-        cv.imshow('img', img)
-        cv.waitKey(1000)
-        
-        
-        #---------------
-        filename = newImagePrefix + (maxLeadingZeros - len(str(imgCounter)))*"0"+str(imgCounter) + newImageExtension
-        filePath = os.path.join(savePath, filename)
-        
-        cv.imwrite(filePath, img)
-        print("image saved!")
-        imgCounter += 1
+        corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+        imgpoints.append(corners2)
+        #Draw and display the corners
+        cv2.drawChessboardCorners(calibration_image, pattern_size, corners2, ret)
+        cv2.imshow('',calibration_image)
+        cv2.waitKey(1000)
+    
     else:
-        print("Not found ...")
+        print(f"Chessboard corners not found in {img_path}")
+#print(len(objpoints))
+#print(len(imgpoints))
+# Calibrate the camera
+if objpoints and imgpoints:
+    ret, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera(
+        objpoints, imgpoints, gray.shape[::-1], None, None
+    )
+
+    # Print calibration matrices
+    print("Intrinsic Matrix (K):")
+    print(camera_matrix)
+    print("Distortion Coefficients:")
+    print(dist_coeffs)
+    # Save camera matrix and distortion coefficients to text files
+    np.savetxt('camera_matrix.txt', camera_matrix)
+    np.savetxt('dist_coeffs.txt', dist_coeffs)
 
 
-cv.destroyAllWindows()
+else:
+    print("Insufficient data for calibration.")
 
-
-
-
-############## CALIBRATION #######################################################
-
-ret, cameraMatrix, distCoeffs, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, frameSize, None, None)
-
-
+'''
 def save2file(filename, variable):
     if (".dat" not in filename): filename += ".dat"
-    savePath = os.path.join(os.getcwd(), "camera_parameters")
+    savePath = os.path.join(os.getcwd(), "goProHero10\src\Camera\camera_parameters")
     filePath = os.path.join(savePath, filename)
     if (os.path.isdir(savePath) is not True):
         try:
@@ -114,8 +78,11 @@ def save2file(filename, variable):
     with open(filePath, "w+") as fid: fid.write(str(variable))
     return
 #end-def
+'''
+
     
 
+'''
 cameraName = "C1_"
 
 fx = cameraMatrix[0][0]
@@ -134,7 +101,7 @@ save2file(cameraName+"ox", ox)
 save2file(cameraName+"oy", oy)
 
 
-with open("cameraMatrix.dat", "+wb") as fid: np.save(fid, cameraMatrix)
+with open("goProHero10\src\Camera\cameraMatrix.dat", "+wb") as fid: np.save(fid, cameraMatrix)
 
 
 print(f"ret: {ret}")
@@ -155,7 +122,7 @@ for tvec in tvecs:
     print(string)
 #print(f"translation vectors: {tvecs}")
 
-input(">>>")
+input(">>>")'''
 
 """
 # Save the camera calibration result for later use (we won't worry about rvecs / tvecs)

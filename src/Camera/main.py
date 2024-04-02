@@ -5,6 +5,7 @@ import threading
 import traceback
 
 import cv2
+from cv2 import aruco
 from camera import camera
 from goProHero10 import goProHero10
 
@@ -109,10 +110,9 @@ def pose_estimation(frame, aruco_dict, matrix_coefficients, distortion_coefficie
     aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
     
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    cv2.aruco_dict = cv2.aruco.Dictionary_get(aruco_dict)
-    parameters = cv2.aruco.DetectorParameters_create()
+    parameters = cv2.aruco.DetectorParameters()
 
-    corners, ids, rejected_img_points = cv2.aruco.detectMarkers(gray, cv2.aruco_dict,parameters=parameters,
+    corners, ids, rejected_img_points = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters,
         cameraMatrix=matrix_coefficients,
         distCoeff=distortion_coefficients)
     
@@ -126,7 +126,7 @@ def pose_estimation(frame, aruco_dict, matrix_coefficients, distortion_coefficie
             cv2.aruco.drawDetectedMarkers(frame, corners)
 
             # Draw Axis
-            cv2.aruco.drawAxis(frame, matrix_coefficients, distortion_coefficients, rvec, tvec, 0.01)  
+            cv2.drawFrameAxes(frame, matrix_coefficients, distortion_coefficients, rvec, tvec, 0.01)
             
     return frame
 #----------------------------------------------------------------
