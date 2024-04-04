@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import cv2
+import pandas as pd
 
 from utils.config import readConfig
 
@@ -57,8 +58,43 @@ class camera:
         self.windowName = windowName
         
         self.frame = None
+        self.rvecs = None
+        self.tvecs = None
     #end-def
     
+    def pose_estimation(self, frame, aruco_dict, matrix_coefficients, distortion_coefficients):
+        matrix_reader = pd.read_csv('camera_matrix.txt', delim_whitespace=True, header=None)
+        matrix_coefficients = matrix_reader.to_numpy()
+        dist_reader = pd.read_csv('dist_coeffs.txt', delim_whitespace=True, header=None)
+        distortion_coefficients= dist_reader.to_numpy()
+        aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
+        
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        parameters = cv2.aruco.DetectorParameters()
+
+        corners, ids, rejected_img_points = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters,
+            cameraMatrix=matrix_coefficients,
+            distCoeff=distortion_coefficients)
+        
+        self.rvecs = []
+        self.tvecs = []
+        
+        # If markers are detected
+        if len(corners) > 0:
+            for i in range(0, len(ids)):
+                # Estimate pose of each marker and return the values rvec and tvec---(different from those of camera coefficients)
+                rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.02, matrix_coefficients,
+                                                                        distortion_coefficients)
+                # Draw a square around the markers
+                cv2.aruco.drawDetectedMarkers(frame, corners)
+
+                # Draw Axis
+                cv2.drawFrameAxes(frame, matrix_coefficients, distortion_coefficients, rvec, tvec, 0.01)
+                
+                self.rvecs.append(rvec)
+                self.tvecs.append(tvec)
+
+        return frame, self.rvecs, self.tvecs
     
     def display(self):
         ret, self.frame = self.cap.read()
@@ -79,9 +115,15 @@ class camera:
             font = cv2.FONT_HERSHEY_SIMPLEX 
             cv2.putText(self.frame, fps, (7, 70), font, 3, (100, 255, 0), 3, cv2.LINE_AA) 
         #end-if-else
-        
-        
-        cv2.imshow(self.windowName, self.frame)
+
+        matrix_reader = pd.read_csv('camera_matrix.txt', delim_whitespace=True, header=None)
+        k = matrix_reader.to_numpy()
+        dist_reader = pd.read_csv('dist_coeffs.txt', delim_whitespace=True, header=None)
+        d = dist_reader.to_numpy()
+        aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
+
+        output = self.pose_estimation(self.frame, aruco_dict, k, d)
+        cv2.imshow(self.windowName, output)
         key = cv2.waitKey(1)
         if key == 27: #ESC Key to exit
             pass

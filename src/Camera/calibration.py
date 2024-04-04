@@ -4,6 +4,7 @@ import glob
 import pickle
 import os
 from glob import glob
+import pandas as pd
 
 # Define the size of the chessboard pattern used for calibration
 pattern_size = (7, 9)

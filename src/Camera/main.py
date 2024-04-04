@@ -3,6 +3,8 @@ import sys
 import logging
 import threading
 import traceback
+import pandas as pd
+import numpy as np
 
 import cv2
 from cv2 import aruco
@@ -102,11 +104,11 @@ def keyPressHandler():
 #threadKeyPress = threading.Thread(target = keyPressHandler, args=[])
 #threadKeyPress.start()
 #----------------------------------------------------------------
-def pose_estimation(frame, aruco_dict, matrix_coefficients, distortion_coefficients):
-    matrix_coefficients= [[2.73348997e+03, 0.00000000e+00, 3.89633657e+02],
-                        [0.00000000e+00, 1.69996987e+03, 2.07163499e+02],
-                        [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]]
-    distortion_coefficients= 2.744205026701205
+'''def pose_estimation(frame, aruco_dict, matrix_coefficients, distortion_coefficients):
+    matrix_reader = pd.read_csv('camera_matrix.txt', delim_whitespace=True, header=None)
+    matrix_coefficients = matrix_reader.to_numpy()
+    dist_reader = pd.read_csv('dist_coeffs.txt', delim_whitespace=True, header=None)
+    distortion_coefficients= dist_reader.to_numpy()
     aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
     
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -115,6 +117,9 @@ def pose_estimation(frame, aruco_dict, matrix_coefficients, distortion_coefficie
     corners, ids, rejected_img_points = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters,
         cameraMatrix=matrix_coefficients,
         distCoeff=distortion_coefficients)
+    
+    rvecs = []
+    tvecs = []
     
     # If markers are detected
     if len(corners) > 0:
@@ -128,7 +133,32 @@ def pose_estimation(frame, aruco_dict, matrix_coefficients, distortion_coefficie
             # Draw Axis
             cv2.drawFrameAxes(frame, matrix_coefficients, distortion_coefficients, rvec, tvec, 0.01)
             
-    return frame
+            rvecs.append(rvec)
+            tvecs.append(tvec)
+
+    return frame, rvecs, tvecs'''
+
+def marker_position(tvec, rotation_matrix):
+    """
+    Calculate the position of the marker in the camera coordinate system.
+
+    Parameters:
+        tvec (numpy array): Translation vector of the marker.
+        rotation_matrix (numpy array): Rotation matrix of the marker.
+
+    Returns:
+        numpy array: Position of the marker in the camera coordinate system.
+    """
+    # Invert rotation matrix to obtain the transformation from marker to camera
+    rotation_matrix_inv = np.linalg.inv(rotation_matrix)
+    
+    # Convert translation vector to a column vector
+    tvec = tvec.reshape((3, 1))
+
+    # Calculate marker position in camera coordinates using inverse transformation
+    marker_pos = -np.dot(rotation_matrix_inv, tvec)
+
+    return marker_pos
 #----------------------------------------------------------------
 #Path to save the output images (when the user presses key 'p')
 savePath = os.path.join(os.getcwd(), "images")
@@ -155,6 +185,7 @@ goProCamera = camera()
 goProCamera.frameWidth, goProCamera.frameHeight = frameSizes[desiredResolutionName]
 #Set the Window Name:
 goProCamera.windowName = desiredResolutionName + " | " + desiredFovName 
+
 
 
 
