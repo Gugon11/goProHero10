@@ -58,6 +58,7 @@ class camera:
         self.windowName = windowName
         
         self.frame = None
+        self.positions_aruco = None
     #end-def
 #-----------------------------------------------------------------    
     def marker_position(self, tvec, rotation_matrix):
@@ -118,7 +119,7 @@ class camera:
         self.positions_aruco = positions_aruco
                 
 
-        return frame, 
+        return frame, positions_aruco
     
     def display(self):
         ret, self.frame = self.cap.read()
