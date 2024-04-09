@@ -58,10 +58,30 @@ class camera:
         self.windowName = windowName
         
         self.frame = None
-        self.rvecs = None
-        self.tvecs = None
     #end-def
+#-----------------------------------------------------------------    
+    def marker_position(self, tvec, rotation_matrix):
+        """
+        Calculate the position of the marker in the camera coordinate system.
+
+        Parameters:
+        tvec (numpy array): Translation vector of the marker.
+        rotation_matrix (numpy array): Rotation matrix of the marker.
+
+        Returns:
+        numpy array: Position of the marker in the camera coordinate system.
+        """
+        # Invert rotation matrix to obtain the transformation from marker to camera
+        rotation_matrix_inv = np.linalg.inv(rotation_matrix)
     
+        # Convert translation vector to a column vector
+        tvec = tvec.reshape((3, 1))
+
+        # Calculate marker position in camera coordinates using inverse transformation
+        marker_pos = -np.dot(rotation_matrix_inv, tvec)
+
+        return marker_pos
+#-------------------------------------------------------------------------------------------------
     def pose_estimation(self, frame, aruco_dict, matrix_coefficients, distortion_coefficients):
         matrix_reader = pd.read_csv('camera_matrix.txt', delim_whitespace=True, header=None)
         matrix_coefficients = matrix_reader.to_numpy()
@@ -76,9 +96,7 @@ class camera:
             cameraMatrix=matrix_coefficients,
             distCoeff=distortion_coefficients)
         
-        self.rvecs = []
-        self.tvecs = []
-        self.id    = ids
+        positions_aruco = []  # List to store positions of all detected markers
         # If markers are detected
         if len(corners) > 0:
             for i in range(0, len(ids)):
@@ -91,10 +109,16 @@ class camera:
                 # Draw Axis
                 cv2.drawFrameAxes(frame, matrix_coefficients, distortion_coefficients, rvec, tvec, 0.01)
                 
-                self.rvecs.append(rvec)
-                self.tvecs.append(tvec)
+                # Calculate marker position
+                position_aruco = self.marker_position(tvec, rvec)
+                
+                # Append position to the list
+                positions_aruco.append(position_aruco)
+        
+        self.positions_aruco = positions_aruco
+                
 
-        return frame, self.rvecs, self.tvecs, self.id
+        return frame, 
     
     def display(self):
         ret, self.frame = self.cap.read()
