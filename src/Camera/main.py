@@ -78,66 +78,6 @@ logging.info(f"Current Camera Status: {currentStatus}.")
 print(f"Current Camera Status: {currentStatus}.")
 
 #----------------------------------------------------------------
-
-'''
-def keyPressHandler():
-    not used
-    while True:
-        try:
-            if (cv2.waitKey(1) & 0xFF == ord('q')):
-                del goProCamera
-            elif (cv2.waitKey(1) & 0xFF == ord('1')):
-                gopro.startWebcam["params"]["res"] = gopro.resolutions["1080p"]
-            elif (cv2.waitKey(1) & 0xFF == ord('2')):
-                gopro.startWebcam["params"]["res"] = gopro.resolutions["720p"]
-            elif (cv2.waitKey(1) & 0xFF == ord('3')):
-                gopro.startWebcam["params"]["res"] = gopro.resolutions["480p"]
-            else:
-                pass
-            #end-if-else
-        except:
-            pass
-        #end-try-except
-        '''
-#end-def
-
-#threadKeyPress = threading.Thread(target = keyPressHandler, args=[])
-#threadKeyPress.start()
-#----------------------------------------------------------------
-'''def pose_estimation(frame, aruco_dict, matrix_coefficients, distortion_coefficients):
-    matrix_reader = pd.read_csv('camera_matrix.txt', delim_whitespace=True, header=None)
-    matrix_coefficients = matrix_reader.to_numpy()
-    dist_reader = pd.read_csv('dist_coeffs.txt', delim_whitespace=True, header=None)
-    distortion_coefficients= dist_reader.to_numpy()
-    aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
-    
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    parameters = cv2.aruco.DetectorParameters()
-
-    corners, ids, rejected_img_points = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters,
-        cameraMatrix=matrix_coefficients,
-        distCoeff=distortion_coefficients)
-    
-    rvecs = []
-    tvecs = []
-    
-    # If markers are detected
-    if len(corners) > 0:
-        for i in range(0, len(ids)):
-            # Estimate pose of each marker and return the values rvec and tvec---(different from those of camera coefficients)
-            rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.02, matrix_coefficients,
-                                                                       distortion_coefficients)
-            # Draw a square around the markers
-            cv2.aruco.drawDetectedMarkers(frame, corners)
-
-            # Draw Axis
-            cv2.drawFrameAxes(frame, matrix_coefficients, distortion_coefficients, rvec, tvec, 0.01)
-            
-            rvecs.append(rvec)
-            tvecs.append(tvec)
-
-    return frame, rvecs, tvecs'''
-
 def marker_position(tvec, rotation_matrix):
     """
     Calculate the position of the marker in the camera coordinate system.
@@ -206,6 +146,7 @@ else:
             for j, rvec in enumerate(goProCamera.rvecs):
                 position_ArUco = marker_position(tvec, rvec)
                 print(position_ArUco)
+        
         #Check the Key presses:
         if (cv2.waitKey(1) & 0xFF == ord('q')):
             break

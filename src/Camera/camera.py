@@ -78,7 +78,7 @@ class camera:
         
         self.rvecs = []
         self.tvecs = []
-        
+        self.id    = ids
         # If markers are detected
         if len(corners) > 0:
             for i in range(0, len(ids)):
@@ -94,7 +94,7 @@ class camera:
                 self.rvecs.append(rvec)
                 self.tvecs.append(tvec)
 
-        return frame, self.rvecs, self.tvecs
+        return frame, self.rvecs, self.tvecs, self.id
     
     def display(self):
         ret, self.frame = self.cap.read()
