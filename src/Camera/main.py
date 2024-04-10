@@ -142,10 +142,6 @@ else:
         #Update the image on the frame:
         goProCamera.display()
         
-        for i, tvec in enumerate(goProCamera.tvecs):
-            for j, rvec in enumerate(goProCamera.rvecs):
-                position_ArUco = marker_position(tvec, rvec)
-                print(position_ArUco)
         
         #Check the Key presses:
         if (cv2.waitKey(1) & 0xFF == ord('q')):

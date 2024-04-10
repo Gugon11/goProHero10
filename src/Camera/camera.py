@@ -84,6 +84,7 @@ class camera:
         return marker_pos
 #-------------------------------------------------------------------------------------------------
     def pose_estimation(self, frame, aruco_dict, matrix_coefficients, distortion_coefficients):
+        
         matrix_reader = pd.read_csv('camera_matrix.txt', delim_whitespace=True, header=None)
         matrix_coefficients = matrix_reader.to_numpy()
         dist_reader = pd.read_csv('dist_coeffs.txt', delim_whitespace=True, header=None)
@@ -98,6 +99,7 @@ class camera:
             distCoeff=distortion_coefficients)
         
         positions_aruco = []  # List to store positions of all detected markers
+        
         # If markers are detected
         if len(corners) > 0:
             for i in range(0, len(ids)):
