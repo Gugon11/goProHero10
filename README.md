@@ -160,9 +160,9 @@ Not supported on:
 ## Webcam Sequence Diagram
 
 ### Elements:
-- **main** [`main.py`](https://github.com/conradoguimaraes/goProHero10/blob/main/src/Camera/main.py): main script
-- **goProHero10 API** [`goProHero10.py`](https://github.com/conradoguimaraes/goProHero10/blob/main/src/Camera/goProHero10.py): _goProHero10 class_ that handles the HTTP communication with the GoPro Hero 10 Camera (Hardware)
-- **camera** [`camera.py`](https://github.com/conradoguimaraes/goProHero10/blob/main/src/Camera/camera.py): _class_ that implements and handles, through _openCV_, the live feed, keypress events, image processing, etc;
+- **main** [`main.py`](https://github.com/Gugon11/goProHero10/blob/main/src/Camera/main.py): main script
+- **goProHero10 API** [`goProHero10.py`](https://github.com/Gugon11/goProHero10/blob/main/src/Camera/goProHero10.py): _goProHero10 class_ that handles the HTTP communication with the GoPro Hero 10 Camera (Hardware)
+- **camera** [`camera.py`](https://github.com/Gugon11/goProHero10/blob/main/src/Camera/camera.py): _class_ that implements and handles, through _openCV_, the live feed, keypress events, image processing, etc;
 - **GoPro Hero 10**: hardware
 
 ### Diagram
