@@ -76,7 +76,6 @@ while (currentStatus != "idle"):
 newCurrentStatus = gopro.getCameraState()
 logging.info(f"Current Camera Status: {currentStatus}.")
 print(f"Current Camera Status: {currentStatus}.")
-
 #----------------------------------------------------------------
 #Path to save the output images (when the user presses key 'p')
 savePath = os.path.join(os.getcwd(), "images")
