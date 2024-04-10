@@ -104,8 +104,13 @@ class camera:
                 # Estimate pose of each marker and return the values rvec and tvec---(different from those of camera coefficients)
                 rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.02, matrix_coefficients,
                                                                         distortion_coefficients)
+                
+                print(rvec)
+                print( )
+                print(tvec)
                 # Draw a square around the markers
                 cv2.aruco.drawDetectedMarkers(frame, corners)
+
 
                 # Draw Axis
                 cv2.drawFrameAxes(frame, matrix_coefficients, distortion_coefficients, rvec, tvec, 0.01)
