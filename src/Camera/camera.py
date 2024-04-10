@@ -84,7 +84,7 @@ class camera:
         return marker_pos
 #-------------------------------------------------------------------------------------------------
     def pose_estimation(self, frame, aruco_dict, matrix_coefficients, distortion_coefficients):
-        
+        ret, frame = self.cap.read()
         matrix_reader = pd.read_csv('camera_matrix.txt', delim_whitespace=True, header=None)
         matrix_coefficients = matrix_reader.to_numpy()
         dist_reader = pd.read_csv('dist_coeffs.txt', delim_whitespace=True, header=None)
@@ -94,9 +94,7 @@ class camera:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         parameters = cv2.aruco.DetectorParameters()
 
-        corners, ids, rejected_img_points = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters,
-            cameraMatrix=matrix_coefficients,
-            distCoeff=distortion_coefficients)
+        corners, ids, rejected_img_points = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
         
         positions_aruco = []  # List to store positions of all detected markers
         
@@ -149,7 +147,7 @@ class camera:
         d = dist_reader.to_numpy()
         aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
 
-        output = self.pose_estimation(self.frame, aruco_dict, k, d)
+        output, _ = self.pose_estimation(self.frame, aruco_dict, k, d)
         cv2.imshow(self.windowName, output)
         key = cv2.waitKey(1)
         if key == 27: #ESC Key to exit

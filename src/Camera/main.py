@@ -78,28 +78,6 @@ logging.info(f"Current Camera Status: {currentStatus}.")
 print(f"Current Camera Status: {currentStatus}.")
 
 #----------------------------------------------------------------
-def marker_position(tvec, rotation_matrix):
-    """
-    Calculate the position of the marker in the camera coordinate system.
-
-    Parameters:
-        tvec (numpy array): Translation vector of the marker.
-        rotation_matrix (numpy array): Rotation matrix of the marker.
-
-    Returns:
-        numpy array: Position of the marker in the camera coordinate system.
-    """
-    # Invert rotation matrix to obtain the transformation from marker to camera
-    rotation_matrix_inv = np.linalg.inv(rotation_matrix)
-    
-    # Convert translation vector to a column vector
-    tvec = tvec.reshape((3, 1))
-
-    # Calculate marker position in camera coordinates using inverse transformation
-    marker_pos = -np.dot(rotation_matrix_inv, tvec)
-
-    return marker_pos
-#----------------------------------------------------------------
 #Path to save the output images (when the user presses key 'p')
 savePath = os.path.join(os.getcwd(), "images")
 if (os.path.isdir(savePath) is not True):
