@@ -61,17 +61,20 @@ class camera:
         self.positions_aruco = None
     #end-def
 #-----------------------------------------------------------------    
-    def marker_position(self, tvec, rotation_matrix):
+    def marker_position(self, tvec, rvec):
         """
         Calculate the position of the marker in the camera coordinate system.
 
         Parameters:
         tvec (numpy array): Translation vector of the marker.
-        rotation_matrix (numpy array): Rotation matrix of the marker.
+        rvec (numpy array): Rotation vector of the marker.
 
         Returns:
         numpy array: Position of the marker in the camera coordinate system.
         """
+        # Convert rotation vector to a rotation matrix
+        rotation_matrix, _ = cv2.Rodrigues(rvec)
+        
         # Invert rotation matrix to obtain the transformation from marker to camera
         rotation_matrix_inv = np.linalg.inv(rotation_matrix)
     
@@ -105,9 +108,6 @@ class camera:
                 rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.02, matrix_coefficients,
                                                                         distortion_coefficients)
                 
-                print(rvec)
-                print( )
-                print(tvec)
                 # Draw a square around the markers
                 cv2.aruco.drawDetectedMarkers(frame, corners)
 
