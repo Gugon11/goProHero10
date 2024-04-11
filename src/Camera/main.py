@@ -32,7 +32,7 @@ logging.info(gopro.showConnectionDetails())
 #----------------------------------------------------------------
 #Adjust Resolution + Fov
 desiredResolutionName = "1080p"
-desiredFovName = "wide"
+desiredFovName = "linear"
 
 desiredResolution = gopro.resolutions[desiredResolutionName] #1080p,720p,420p
 desiredFov = gopro.fovs[desiredFovName] #Wide, Narrow, Superview, Linear
@@ -78,7 +78,7 @@ logging.info(f"Current Camera Status: {currentStatus}.")
 print(f"Current Camera Status: {currentStatus}.")
 #----------------------------------------------------------------
 #Path to save the output images (when the user presses key 'p')
-savePath = os.path.join(os.getcwd(), "images")
+savePath = os.path.join(os.getcwd(), "goProHero10/src/Camera/images")
 if (os.path.isdir(savePath) is not True):
     try:
         os.mkdir(savePath)
