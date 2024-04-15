@@ -146,14 +146,14 @@ class camera:
             cv2.putText(self.frame, fps, (7, 70), font, 3, (100, 255, 0), 3, cv2.LINE_AA) 
         #end-if-else
 
-        matrix_reader = pd.read_csv('camera_matrix.txt', delim_whitespace=True, header=None)
+        matrix_reader = pd.read_csv('camera_matrixlinear.txt', delim_whitespace=True, header=None)
         k = matrix_reader.to_numpy()
-        dist_reader = pd.read_csv('dist_coeffs.txt', delim_whitespace=True, header=None)
+        dist_reader = pd.read_csv('dist_coeffslinear.txt', delim_whitespace=True, header=None)
         d = dist_reader.to_numpy()
         aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
 
         output, _ = self.pose_estimation(self.frame, aruco_dict, k, d)
-        cv2.imshow(self.windowName, output)
+        cv2.imshow(self.windowName, self.frame)
         key = cv2.waitKey(1)
         if key == 27: #ESC Key to exit
             pass

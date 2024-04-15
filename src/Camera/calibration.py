@@ -21,7 +21,7 @@ objp = np.zeros((pattern_size[0] * pattern_size[1], 3), np.float32)
 objp[:, :2] = np.mgrid[0:pattern_size[0], 0:pattern_size[1]].T.reshape(-1, 2)
 
 # Directory containing calibration images
-calibration_dir = "goProHero10/src/Camera/images"
+calibration_dir = "goProHero10/src/Camera/images/linear"
 calibration_images = glob(calibration_dir + "/*.png")
 print(len(calibration_images))
 
@@ -39,7 +39,8 @@ for img_path in calibration_images:
         imgpoints.append(corners2)
         #Draw and display the corners
         cv2.drawChessboardCorners(calibration_image, pattern_size, corners2, ret)
-        cv2.imshow('',calibration_image)
+        im = cv2.resize(calibration_image, (960, 540)) 
+        cv2.imshow('',im)
         cv2.waitKey(1000)
     
     else:
@@ -58,8 +59,8 @@ if objpoints and imgpoints:
     print("Distortion Coefficients:")
     print(dist_coeffs)
     # Save camera matrix and distortion coefficients to text files
-    np.savetxt('camera_matrix.txt', camera_matrix)
-    np.savetxt('dist_coeffs.txt', dist_coeffs)
+    np.savetxt('camera_matrixlinear.txt', camera_matrix)
+    np.savetxt('dist_coeffslinear.txt', dist_coeffs)
 
 
 else:
