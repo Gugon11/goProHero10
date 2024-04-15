@@ -153,7 +153,7 @@ class camera:
         aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
 
         output, _ = self.pose_estimation(self.frame, aruco_dict, k, d)
-        cv2.imshow(self.windowName, self.frame)
+        cv2.imshow(self.windowName, output)
         key = cv2.waitKey(1)
         if key == 27: #ESC Key to exit
             pass
