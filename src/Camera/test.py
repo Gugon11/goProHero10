@@ -103,6 +103,15 @@ def detect_red_car(image):
 
 
 
+
+
+
+
+
+
+
+
+#----------------------------------------------------------------------------------------------------------
 # Example usage:
 image = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
 result_with_car = detect_red_car(image)
