@@ -78,7 +78,7 @@ logging.info(f"Current Camera Status: {currentStatus}.")
 print(f"Current Camera Status: {currentStatus}.")
 #----------------------------------------------------------------
 #Path to save the output images (when the user presses key 'p')
-savePath = os.path.join(os.getcwd(), "goProHero10/src/Camera/images")
+savePath = os.path.join(os.getcwd(), "goProHero10/src/Camera/images/linear")
 if (os.path.isdir(savePath) is not True):
     try:
         os.mkdir(savePath)
