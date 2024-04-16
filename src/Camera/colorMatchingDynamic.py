@@ -4,7 +4,7 @@ import cv2
 
 
 # read the image
-image = cv2.imread("img1.jpg")
+image = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
 # convert from BGR to HSV color space
 hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
