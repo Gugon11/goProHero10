@@ -87,14 +87,19 @@ def detect_red_car(image):
     res = cv2.bitwise_and(image, image, mask=filtered_mask)
     res2 = cv2.bitwise_and(image, image, mask=filtered_mask2)
 
-    # Extract centroids
-    moments = cv2.moments(filtered_mask)
-    cX = int(moments["m10"] / moments["m00"])
-    cY = int(moments["m01"] / moments["m00"])
-    
-    # Draw centroid on the result image
-    cv2.circle(res, (cX, cY), 10, (255, 255, 255), -1)
-    cv2.putText(res, "centroid", (cX - 25, cY - 25), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+     # Extract centroids
+    centroids = []
+    for cnt in filtered_contours:
+        moments = cv2.moments(cnt)
+        if moments["m00"] != 0:
+            cX = int(moments["m10"] / moments["m00"])
+            cY = int(moments["m01"] / moments["m00"])
+            centroids.append((cX, cY))
+
+    # Draw centroids on the result image
+    for centroid in centroids:
+        cv2.circle(res, centroid, 10, (255, 255, 255), -1)
+        cv2.putText(res, "centroid", (centroid[0] - 25, centroid[1] - 25), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
 
     img = cv2.add(res, res2)
     
@@ -145,7 +150,7 @@ def detect_pink_car(image):
 
 #----------------------------------------------------------------------------------------------------------
 # Example usage:
-image = cv2.imread("goProHero10/src/Camera/images/linear/colorsdetection.jpg")
+image = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
 result_with_car = detect_red_car(image)
 
 im = cv2.resize(result_with_car, (960, 540))
