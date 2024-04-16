@@ -154,10 +154,8 @@ class camera:
 
         output, _ = self.pose_estimation(self.frame, aruco_dict, k, d)'''
 
-        mask = cv2.inRange(self.frame, (0, 0, 0), (255, 255, 255))
-        result = cv2.bitwise_and(self.frame, self.frame, mask=mask)
 
-        cv2.imshow(self.windowName, result)
+        cv2.imshow(self.windowName, self.frame)
         key = cv2.waitKey(1)
         if key == 27: #ESC Key to exit
             pass

@@ -145,8 +145,8 @@ def detect_pink_car(image):
 
 #----------------------------------------------------------------------------------------------------------
 # Example usage:
-image = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
-result_with_car = detect_pink_car(image)
+image = cv2.imread("goProHero10/src/Camera/images/linear/colorsdetection.jpg")
+result_with_car = detect_red_car(image)
 
 im = cv2.resize(result_with_car, (960, 540))
 cv2.imshow("Output", im)
