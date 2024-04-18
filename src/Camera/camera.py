@@ -130,7 +130,7 @@ class camera:
 
 #-------------------------------DETECTION WITH CAR's COLOR-----------------------------------------------
     def detect_cars(self, image):
-        def detect_blue_cars(self, image):
+        def detect_blue_cars(image):
             # Convert the image to HSV color space
             image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -170,7 +170,7 @@ class camera:
 
             return centroids, result
 
-        def detect_red_cars(self, image):
+        def detect_red_cars(image):
             # Convert the image to HSV color space
             image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -216,7 +216,7 @@ class camera:
 
             return centroids, result
 
-        def detect_pink_cars(self, image):
+        def detect_pink_cars(image):
             # Convert the image to HSV color space
             image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -262,8 +262,8 @@ class camera:
                     cv2.putText(result, "centroid", (cX - 25, cY - 25), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
 
             return centroids, result
-    
-        def adjust_intensity(self, image, alpha=0.35, beta=0):
+
+        def adjust_intensity(image, alpha=0.35, beta=0):
             # Perform intensity adjustment using alpha blending
             adjusted_image = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
             return adjusted_image
@@ -293,6 +293,7 @@ class camera:
         all_centroids = blue_centroids + red_centroids + pink_centroids
 
         return all_centroids, combined_result
+
     
     def display(self):
         ret, self.frame = self.cap.read()
