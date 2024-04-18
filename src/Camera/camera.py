@@ -322,7 +322,7 @@ class camera:
         aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
 
         output, _ = self.pose_estimation(self.frame, aruco_dict, k, d)'''
-
+        
         centroids, output = self.detect_cars(self.frame)
         print(centroids)
         cv2.imshow(self.windowName, output)
