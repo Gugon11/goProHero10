@@ -170,7 +170,7 @@ class camera:
 
             return centroids, result
 
-        def detect_red_cars(image):
+        def detect_red_cars(self, image):
             # Convert the image to HSV color space
             image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -216,7 +216,7 @@ class camera:
 
             return centroids, result
 
-        def detect_pink_cars(image):
+        def detect_pink_cars(self, image):
             # Convert the image to HSV color space
             image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -263,7 +263,7 @@ class camera:
 
             return centroids, result
     
-        def adjust_intensity(image, alpha=0.35, beta=0):
+        def adjust_intensity(self, image, alpha=0.35, beta=0):
             # Perform intensity adjustment using alpha blending
             adjusted_image = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
             return adjusted_image
@@ -322,8 +322,9 @@ class camera:
 
         output, _ = self.pose_estimation(self.frame, aruco_dict, k, d)'''
 
-
-        cv2.imshow(self.windowName, self.frame)
+        centroids, output = self.detect_cars(self.frame)
+        print(centroids)
+        cv2.imshow(self.windowName, output)
         key = cv2.waitKey(1)
         if key == 27: #ESC Key to exit
             pass
