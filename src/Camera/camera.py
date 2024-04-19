@@ -127,6 +127,12 @@ class camera:
                 
 
         return frame, positions_aruco'''
+    
+    def crop_img(self, image, x, y, h, w):
+    
+        cropped_img= image[y:y+h, x:x+w]
+
+        return cropped_img
 
 #-------------------------------DETECTION WITH CAR's COLOR-----------------------------------------------
     def detect_cars(self, image):
@@ -322,8 +328,9 @@ class camera:
         aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
 
         output, _ = self.pose_estimation(self.frame, aruco_dict, k, d)'''
+        racetrack = self.crop_img(self.frame, 600, 80, 1000, 1150)
         
-        centroids, output = self.detect_cars(self.frame)
+        centroids, output = self.detect_cars(racetrack)
         print(centroids)
         cv2.imshow(self.windowName, output)
         key = cv2.waitKey(1)
