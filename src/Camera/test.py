@@ -177,52 +177,16 @@ cv2.imshow("Output", im)
 cv2.waitKey(0)
 cv2.destroyAllWindows()'''
 
-def get_paper_contour(img):
+def crop_img(image, x, y, h, w):
+    
+    cropped_img= image[y:y+h, x:x+w]
 
-  # Convert the image to grayscale
-  img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    return cropped_img
 
-  # Blur the image and apply an adaptive threshold to highlight the paper
-  blurred = cv2.GaussianBlur(img_gray, (5,5), 0)
-  thresholded = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+image = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
 
-  # Apply morphologycal open to remove some distortion in the image
-  kernel = np.ones((11,11), np.uint8)
-  opening = cv2.morphologyEx(thresholded, cv2.MORPH_OPEN, kernel)
+racetrack = crop_img(image, 600, 80, 1000, 1150)
 
-  # Find contours
-  image_contours, _ = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-  # Find the largest contour that should be the paper
-  largest_contour = max(image_contours, key=cv2.contourArea)
-
-  return largest_contour
-
-def calculate_roi(img):
-
-  # Get paper contour
-  paper_contour = get_paper_contour(img)
-
-  # Create a black mask of the same size as the image
-  mask = np.zeros_like(img)
-
-  # Fill the interior of the contour with white
-  cv2.drawContours(mask, [paper_contour], -1, (255,255,255), thickness=cv2.FILLED)
-
-  # Use the mask to extract the region of interest
-  result = cv2.bitwise_and(img, mask)
-
-  return result
-
-img = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
-contour = get_paper_contour(img)
-racetrack_contour = cv2.drawContours(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), [contour], -1, (0,0,255), 2)
-
-# Get cropped image of the paper
-masked_img = calculate_roi(img)
-masked_img = cv2.cvtColor(masked_img, cv2.COLOR_BGR2RGB)
-
-cv2.imshow('Detected Contour of the Race Track', racetrack_contour)
-cv2.imshow('ROI', masked_img)
+cv2.imshow('', racetrack)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
