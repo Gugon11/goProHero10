@@ -201,7 +201,7 @@ class camera:
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
             # Filter contours based on area
-            min_area = 500
+            min_area = 570
             max_area = 1500
             filtered_contours = [cnt for cnt in contours if min_area < cv2.contourArea(cnt) < max_area]
 
