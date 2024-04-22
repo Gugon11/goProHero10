@@ -63,7 +63,7 @@ class camera:
 
 
 #-----------------------DETECTION WITH ARUCO MARKERS-------------------------------------------   
-    '''def marker_position(self, tvec, rvec):
+    def marker_position(self, tvec, rvec):
         """
         Calculate the position of the marker in the camera coordinate system.
 
@@ -86,9 +86,9 @@ class camera:
         # Calculate marker position in camera coordinates using inverse transformation
         marker_pos = -np.dot(rotation_matrix_inv, tvec)
 
-        return marker_pos'''
+        return marker_pos
 #-------------------------------------------------------------------------------------------------
-    '''def pose_estimation(self, frame, aruco_dict, matrix_coefficients, distortion_coefficients):
+    def pose_estimation(self, frame, aruco_dict, matrix_coefficients, distortion_coefficients):
         ret, frame = self.cap.read()
         matrix_reader = pd.read_csv('camera_matrix.txt', delim_whitespace=True, header=None)
         matrix_coefficients = matrix_reader.to_numpy()
@@ -126,15 +126,15 @@ class camera:
         self.positions_aruco = positions_aruco
                 
 
-        return frame, positions_aruco'''
-    
-    def crop_img(self, image, x, y, h, w):
-    
-        cropped_img= image[y:y+h, x:x+w]
+        return frame, positions_aruco
 
-        return cropped_img
 
 #-------------------------------DETECTION WITH CAR's COLOR-----------------------------------------------
+    def crop_img(self, image, x, y, h, w):
+        cropped_img = image[y:y+h, x:x+w]
+        return cropped_img
+    
+    
     def detect_cars(self, image):
         def detect_blue_cars(image):
             # Convert the image to HSV color space
@@ -328,11 +328,20 @@ class camera:
         aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
 
         output, _ = self.pose_estimation(self.frame, aruco_dict, k, d)'''
-        racetrack = self.crop_img(self.frame, 600, 80, 1000, 1150)
         
-        centroids, output = self.detect_cars(racetrack)
+        racetrack = self.crop_img(self.frame, 600, 80, 1000, 1150)
+
+        # Save cropped image to a temporary file
+        cv2.imwrite('temp.jpg', racetrack)
+
+        # Read the saved image back into a Mat-like object
+        racetrack_matlike = cv2.imread('temp.jpg', cv2.IMREAD_COLOR)
+
+        centroids, res = self.detect_cars(racetrack_matlike)
         print(centroids)
-        cv2.imshow(self.windowName, output)
+
+        cv2.imshow(self.windowName, res)
+
         key = cv2.waitKey(1)
         if key == 27: #ESC Key to exit
             pass

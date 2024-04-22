@@ -168,25 +168,33 @@ def detect_cars(image):
 
     return all_centroids, combined_result
 
-'''image = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
-
-centroids, res = detect_cars(image)
-print(centroids)
-im = cv2.resize(res, (960, 540))
-cv2.imshow("Output", im)
-cv2.waitKey(0)
-cv2.destroyAllWindows()'''
-
 def crop_img(image, x, y, h, w):
-    
-    cropped_img= image[y:y+h, x:x+w]
-
+    cropped_img = image[y:y+h, x:x+w]
     return cropped_img
 
 image = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
 
 racetrack = crop_img(image, 600, 80, 1000, 1150)
 
-cv2.imshow('', racetrack)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# Save cropped image to a temporary file
+cv2.imwrite('temp.jpg', racetrack)
+
+# Read the saved image back into a Mat-like object
+racetrack_matlike = cv2.imread('temp.jpg', cv2.IMREAD_COLOR)
+
+centroids, res = detect_cars(racetrack_matlike)
+print(centroids)
+
+if racetrack_matlike is not None:
+    im = cv2.resize(res, (960, 540))
+    cv2.imshow("Output", im)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+else:
+    print("Error: Failed to read the saved image file.")
+
+'''centroids, res = detect_cars(image)
+print(centroids)
+im = cv2.resize(res, (960, 540))
+cv2.imshow("Output", im)'''
+
