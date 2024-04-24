@@ -238,15 +238,22 @@ class camera:
             return centroid, result
 
         def detect_pink_cars(image):
-            # Define the lower and upper bounds for pink color in RGB
-            lower_pink1 = np.array([150, 50, 150])
-            upper_pink1 = np.array([255, 150, 255])
+            #Convert the image to HSV color space
+            image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+            
+            # Define the lower and upper bounds for pink color in HSV
+            lower_pink1 = np.array([130, 50, 50])
+            upper_pink1 = np.array([170, 255, 255])
 
-            # Convert the image to RGB color space
-            image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            lower_pink2 = np.array([0, 50, 50])
+            upper_pink2 = np.array([10, 255, 255])
 
-            # Create a mask using the specified range
-            mask = cv2.inRange(image_rgb, lower_pink1, upper_pink1)
+            # Create masks using the specified ranges
+            mask1 = cv2.inRange(image_hsv, lower_pink1, upper_pink1)
+            mask2 = cv2.inRange(image_hsv, lower_pink2, upper_pink2)
+
+            # Combine masks
+            mask = cv2.bitwise_or(mask1, mask2)
 
             # Perform morphological operations to clean up the mask
             kernel = np.ones((7, 7), np.uint8)  # Increase kernel size for better noise reduction
@@ -317,6 +324,7 @@ class camera:
 
         return all_centroids, combined_result
 
+#---------------------------------------------Display Live Frame-----------------------------------------
     
     def display(self):
         ret, self.frame = self.cap.read()
@@ -355,7 +363,7 @@ class camera:
         racetrack_matlike = cv2.imread('temp.jpg', cv2.IMREAD_COLOR)
 
         centroids, res = self.detect_cars(racetrack_matlike)
-        print(centroids)
+        print(centroids[1])
 
         cv2.imshow(self.windowName, res)
 
