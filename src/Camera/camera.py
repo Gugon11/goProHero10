@@ -184,24 +184,24 @@ class camera:
             return centroid, result
 
         def detect_red_cars(image):
-            # Define the lower and upper bounds for red color in RGB
-            lower_red1 = np.array([0, 0, 100])
-            upper_red1 = np.array([50, 50, 255])
-            lower_red2 = np.array([150, 0, 100])
-            upper_red2 = np.array([255, 50, 255])
+            # Convert the image to HSV color space
+            image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-            # Convert the image to RGB color space
-            image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            # Define the lower and upper bounds for red color in HSV
+            lower_red1 = np.array([0, 100, 100])
+            upper_red1 = np.array([5, 255, 255])
+            lower_red2 = np.array([175, 100, 100])
+            upper_red2 = np.array([180, 255, 255])
 
             # Create masks using the specified ranges
-            mask1 = cv2.inRange(image_rgb, lower_red1, upper_red1)
-            mask2 = cv2.inRange(image_rgb, lower_red2, upper_red2)
+            mask1 = cv2.inRange(image_hsv, lower_red1, upper_red1)
+            mask2 = cv2.inRange(image_hsv, lower_red2, upper_red2)
 
             # Combine masks
             mask = cv2.bitwise_or(mask1, mask2)
 
             # Perform morphological operations to clean up the mask
-            kernel = np.ones((7, 7), np.uint8)  # Increase kernel size for better noise reduction
+            kernel = np.ones((5, 5), np.uint8)  # Increase kernel size for better noise reduction
             mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)  # Additional opening to remove smaller noise
 
@@ -242,7 +242,7 @@ class camera:
             image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
             
             # Define the lower and upper bounds for pink color in HSV
-            lower_pink1 = np.array([130, 50, 50])
+            lower_pink1 = np.array([150, 50, 50])
             upper_pink1 = np.array([170, 255, 255])
 
             lower_pink2 = np.array([0, 50, 50])
@@ -363,7 +363,7 @@ class camera:
         racetrack_matlike = cv2.imread('temp.jpg', cv2.IMREAD_COLOR)
 
         centroids, res = self.detect_cars(racetrack_matlike)
-        print(centroids[1])
+        print(centroids)
 
         cv2.imshow(self.windowName, res)
 
@@ -371,6 +371,9 @@ class camera:
         if key == 27: #ESC Key to exit
             pass
         
+        # After processing, delete the temporary file
+        if os.path.exists('temp.jpg'):
+            os.remove('temp.jpg')
     #end-def
     
     
