@@ -55,26 +55,27 @@ def detect_cars(image):
         # Convert the image to HSV color space
         image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-        # Define the lower and upper bounds for red color in HSV
+        '''# Define the lower and upper bounds for red color in HSV
         lower_red1 = np.array([0, 100, 100])
         upper_red1 = np.array([5, 255, 255])
         lower_red2 = np.array([175, 100, 100])
-        upper_red2 = np.array([180, 255, 255])
+        upper_red2 = np.array([180, 255, 255])'''
+        lower_yellow = np.array([20, 100, 100])   # Lower bound for yellow
+        upper_yellow = np.array([30, 255, 255])   # Upper bound for yellow
+
 
         # Create masks using the specified ranges
-        mask1 = cv2.inRange(image_hsv, lower_red1, upper_red1)
-        mask2 = cv2.inRange(image_hsv, lower_red2, upper_red2)
+        mask1 = cv2.inRange(image_hsv, lower_yellow, upper_yellow)
+        #mask2 = cv2.inRange(image_hsv, lower_red2, upper_red2)
 
-        # Combine masks
-        mask = cv2.bitwise_or(mask1, mask2)
 
         # Perform morphological operations to clean up the mask
         kernel = np.ones((5, 5), np.uint8)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+        mask1 = cv2.morphologyEx(mask1, cv2.MORPH_CLOSE, kernel)
+        mask1 = cv2.morphologyEx(mask1, cv2.MORPH_OPEN, kernel)
 
         # Find contours in the mask
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(mask1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         # Filter contours based on area
         min_area = 500
@@ -160,6 +161,7 @@ def detect_cars(image):
 
         return centroid, result
     
+    
     def adjust_intensity(image, alpha=0.35, beta=0):
         # Perform intensity adjustment using alpha blending
         adjusted_image = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
@@ -206,7 +208,7 @@ cv2.imwrite('temp.jpg', racetrack)
 racetrack_matlike = cv2.imread('temp.jpg', cv2.IMREAD_COLOR)
 
 centroids, res = detect_cars(racetrack_matlike)
-print(centroids[2])
+print(centroids)
 
 if racetrack_matlike is not None:
     im = cv2.resize(res, (960, 540))

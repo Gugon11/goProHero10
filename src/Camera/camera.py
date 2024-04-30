@@ -187,30 +187,31 @@ class camera:
             # Convert the image to HSV color space
             image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-            # Define the lower and upper bounds for red color in HSV
+            '''# Define the lower and upper bounds for red color in HSV
             lower_red1 = np.array([0, 100, 100])
             upper_red1 = np.array([5, 255, 255])
             lower_red2 = np.array([175, 100, 100])
-            upper_red2 = np.array([180, 255, 255])
+            upper_red2 = np.array([180, 255, 255])'''
+            lower_yellow = np.array([20, 100, 100])   # Lower bound for yellow
+            upper_yellow = np.array([30, 255, 255])   # Upper bound for yellow
+
 
             # Create masks using the specified ranges
-            mask1 = cv2.inRange(image_hsv, lower_red1, upper_red1)
-            mask2 = cv2.inRange(image_hsv, lower_red2, upper_red2)
+            mask1 = cv2.inRange(image_hsv, lower_yellow, upper_yellow)
+            #mask2 = cv2.inRange(image_hsv, lower_red2, upper_red2)
 
-            # Combine masks
-            mask = cv2.bitwise_or(mask1, mask2)
 
             # Perform morphological operations to clean up the mask
-            kernel = np.ones((5, 5), np.uint8)  # Increase kernel size for better noise reduction
-            mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-            mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)  # Additional opening to remove smaller noise
+            kernel = np.ones((5, 5), np.uint8)
+            mask1 = cv2.morphologyEx(mask1, cv2.MORPH_CLOSE, kernel)
+            mask1 = cv2.morphologyEx(mask1, cv2.MORPH_OPEN, kernel)
 
             # Find contours in the mask
-            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            contours, _ = cv2.findContours(mask1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
             # Filter contours based on area
-            min_area = 500  # Adjust minimum area threshold
-            max_area = 1500  # Adjust maximum area threshold
+            min_area = 500
+            max_area = 1500
             filtered_contours = [cnt for cnt in contours if min_area < cv2.contourArea(cnt) < max_area]
 
             # Draw the filtered contours on the original image
@@ -229,7 +230,7 @@ class camera:
                         cY = int(moments["m01"] / moments["m00"])
                         centroid = (cX, cY)
                         max_contour_area = area
-
+            
             # Draw the centroid on the result image
             if centroid is not None:
                 cv2.circle(result, centroid, 10, (255, 255, 255), -1)
