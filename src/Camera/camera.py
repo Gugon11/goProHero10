@@ -183,15 +183,12 @@ class camera:
 
             return centroid, result
 
-        def detect_red_cars(image):
+        def detect_yellow_cars(image):
             # Convert the image to HSV color space
             image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-            '''# Define the lower and upper bounds for red color in HSV
-            lower_red1 = np.array([0, 100, 100])
-            upper_red1 = np.array([5, 255, 255])
-            lower_red2 = np.array([175, 100, 100])
-            upper_red2 = np.array([180, 255, 255])'''
+            # Define the lower and upper bounds for yellow color in HSV
+            
             lower_yellow = np.array([20, 100, 100])   # Lower bound for yellow
             upper_yellow = np.array([30, 255, 255])   # Upper bound for yellow
 
@@ -306,10 +303,10 @@ class camera:
         blue_result_adjusted = adjust_intensity(blue_result)
 
         # Detect red cars
-        red_centroids, red_result = detect_red_cars(image)
+        yellow_centroids, yellow_result = detect_yellow_cars(image)
 
         # Adjust intensity of red result
-        red_result_adjusted = adjust_intensity(red_result)
+        yellow_result_adjusted = adjust_intensity(yellow_result)
 
         # Detect pink cars
         pink_centroids, pink_result = detect_pink_cars(image)
@@ -318,10 +315,10 @@ class camera:
         pink_result_adjusted = adjust_intensity(pink_result)
 
         # Combine adjusted results
-        combined_result = cv2.add(cv2.add(blue_result_adjusted, red_result_adjusted), pink_result_adjusted)
+        combined_result = cv2.add(cv2.add(blue_result_adjusted, yellow_result_adjusted), pink_result_adjusted)
 
         # Combine centroids
-        all_centroids = [blue_centroids, red_centroids, pink_centroids]
+        all_centroids = [blue_centroids, yellow_centroids, pink_centroids]
 
         return all_centroids, combined_result
 
