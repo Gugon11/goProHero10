@@ -1,0 +1,53 @@
+import cv2
+import numpy as np
+import os
+import warnings
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Read image
+img = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
+
+# Convert image to grayscale
+img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Convert images to binary for paper detection
+_, img_bin = cv2.threshold(img_gray, 160, 255, cv2.THRESH_BINARY)
+
+# Opening binary image to remove noise around the paper
+close_kernel = np.ones((9,9), np.uint8)
+img_dilated = cv2.dilate(img_bin, close_kernel, iterations=1)
+img_closed = cv2.erode(img_dilated, close_kernel, iterations=1)
+
+# Find paper contour
+image_contours, _ = cv2.findContours(img_closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+# Find the largest contour that should be the paper
+largest_contour = max(image_contours, key=cv2.contourArea)
+
+# Approximate the contour with a 4-sided polygon
+epsilon = 0.1 * cv2.arcLength(largest_contour, True)
+approx = cv2.approxPolyDP(largest_contour, epsilon, True)
+
+# Define the coordinates of the paper's vertices
+top_left = approx[1][0]
+bottom_left = approx[2][0]
+bottom_right = approx[3][0]
+top_right = approx[0][0]
+paper_coords = np.float32([top_left, top_right, bottom_right, bottom_left])
+
+# Define the coordinates of the rectangle's vertices
+dst_height = max(np.linalg.norm(top_left-bottom_left), np.linalg.norm(bottom_right-top_right))
+dst_width = dst_height * 297/210
+
+rectangle_coords = np.float32([top_left, top_left + [dst_width, 0], top_left + [dst_width, dst_height], top_left + [0, dst_height]])
+
+# Calculate the perspective transform matrix
+transform_matrix = cv2.getPerspectiveTransform(paper_coords, rectangle_coords)
+
+print("Transformation Matrix:")
+print(transform_matrix)
+
+pixel_to_mm = dst_height/210.0
+print("Pixel to milimeter ratio =", pixel_to_mm, "pixel/mm")
+

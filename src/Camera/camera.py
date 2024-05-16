@@ -90,9 +90,9 @@ class camera:
 #-------------------------------------------------------------------------------------------------
     def pose_estimation(self, frame, aruco_dict, matrix_coefficients, distortion_coefficients):
         ret, frame = self.cap.read()
-        matrix_reader = pd.read_csv('camera_matrix.txt', delim_whitespace=True, header=None)
+        matrix_reader = pd.read_csv('camera_matrixlinear.txt', delim_whitespace=True, header=None)
         matrix_coefficients = matrix_reader.to_numpy()
-        dist_reader = pd.read_csv('dist_coeffs.txt', delim_whitespace=True, header=None)
+        dist_reader = pd.read_csv('dist_coeffslinear.txt', delim_whitespace=True, header=None)
         distortion_coefficients= dist_reader.to_numpy()
         aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
         
@@ -227,7 +227,7 @@ class camera:
                         cY = int(moments["m01"] / moments["m00"])
                         centroid = (cX, cY)
                         max_contour_area = area
-            
+
             # Draw the centroid on the result image
             if centroid is not None:
                 cv2.circle(result, centroid, 10, (255, 255, 255), -1)
@@ -282,7 +282,7 @@ class camera:
                         cY = int(moments["m01"] / moments["m00"])
                         centroid = (cX, cY)
                         max_contour_area = area
-
+            
             # Draw the centroid on the result image
             if centroid is not None:
                 cv2.circle(result, centroid, 10, (255, 255, 255), -1)
@@ -354,14 +354,23 @@ class camera:
         
         racetrack = self.crop_img(self.frame, 600, 80, 1000, 1150)
 
+        if racetrack.size == 0:
+            print(("Cropping cordinates are out of bounds"))
+        
+        print(f"Cropped racetrack size:{racetrack.shape}")
+
         # Save cropped image to a temporary file
         cv2.imwrite('temp.jpg', racetrack)
 
         # Read the saved image back into a Mat-like object
-        racetrack_matlike = cv2.imread('temp.jpg', cv2.IMREAD_COLOR)
+        #racetrack_matlike = cv2.imread('temp.jpg', cv2.IMREAD_COLOR)
 
-        centroids, res = self.detect_cars(racetrack_matlike)
+        centroids, res = self.detect_cars(racetrack)
         print(centroids)
+
+        if res is None or res.size == 0:
+            print("Detection result is empty")
+            return
 
         cv2.imshow(self.windowName, res)
 
@@ -370,8 +379,8 @@ class camera:
             pass
         
         # After processing, delete the temporary file
-        if os.path.exists('temp.jpg'):
-            os.remove('temp.jpg')
+        '''if os.path.exists('temp.jpg'):
+            os.remove('temp.jpg')'''
     #end-def
     
     

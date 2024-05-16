@@ -1,9 +1,18 @@
 import cv2
 import numpy as np
+import pandas as pd
+import warnings
+
+# Suppress warnings
+warnings.filterwarnings("ignore")
 
 #This test.py serves as an aux to test some functions
 
 def detect_cars(image):
+    matrix_reader = pd.read_csv('camera_matrixlinear.txt', delim_whitespace=True, header=None)
+    matrix_coefficients = matrix_reader.to_numpy()
+    dist_reader = pd.read_csv('dist_coeffslinear.txt', delim_whitespace=True, header=None)
+    distortion_coefficients= dist_reader.to_numpy()
     def detect_blue_cars(image):
         # Convert the image to HSV color space
         image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -49,7 +58,23 @@ def detect_cars(image):
             cv2.circle(result, centroid, 10, (255, 255, 255), -1)
             cv2.putText(result, "centroid", (centroid[0] - 25, centroid[1] - 25), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
 
-        return centroid, result
+        # Undistort pixel coordinates
+        centroid_und = cv2.undistortPoints(centroid, matrix_coefficients, distortion_coefficients)
+        centroid_und = centroid_und[0, 0]
+            
+        # Convert pixel coordinates to direction vector in camera coordinates
+        dir_vector = np.linalg.inv(matrix_coefficients) @ np.append(centroid_und, 1)
+            
+        #Normalize direction vector
+        dir_vector /= np.linalg.norm(dir_vector)
+
+        depth = 1.80
+
+        # Real-world coordinates
+        rw_centroid = dir_vector * depth
+            
+            
+        return rw_centroid, result
 
     def detect_red_cars(image):
         # Convert the image to HSV color space
@@ -197,7 +222,7 @@ def crop_img(image, x, y, h, w):
     cropped_img = image[y:y+h, x:x+w]
     return cropped_img
 
-image = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
+image = cv2.imread("goProHero10/src/Camera/images/linear/img_0007.png")
 
 racetrack = crop_img(image, 600, 80, 1000, 1150)
 
