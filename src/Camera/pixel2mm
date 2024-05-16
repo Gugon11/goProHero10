@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Read image
-img = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
+img = cv2.imread("goProHero10/src/Camera/images/linear/img_0006.png")
 
 # Convert image to grayscale
 img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

@@ -322,6 +322,46 @@ class camera:
 
         return all_centroids, combined_result
 
+
+    def find_circle(self, img):
+        # Convert image to gray
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+        # Convert image to binary for white circle detection
+        _, img_bin = cv2.threshold(gray, 160, 255, cv2.THRESH_BINARY)
+
+        # Opening binary image to remove noise around the circles
+        close_kernel = np.ones((9, 9), np.uint8)
+        img_dilated = cv2.dilate(img_bin, close_kernel, iterations=1)
+        img_closed = cv2.erode(img_dilated, close_kernel, iterations=1)
+
+        # Find circles using Hough Circle Transform
+        circles = cv2.HoughCircles(
+            img_closed, 
+            cv2.HOUGH_GRADIENT, 
+            dp=1, 
+            minDist=20, 
+            param1=50, 
+            param2=30, 
+            minRadius=0, 
+            maxRadius=0
+        )
+
+        # List to store the centers of the circles
+        centers = []
+
+        # If circles are detected, draw them on the original image and store the centers
+        if circles is not None:
+            circles = np.uint16(np.around(circles))
+            for i in circles[0, :]:
+                center = (i[0], i[1])
+                centers.append(center)
+                # Draw the outer circle
+                cv2.circle(img, center, i[2], (0, 255, 0), 2)
+                # Draw the center of the circle
+                cv2.circle(img, center, 2, (0, 0, 255), 3)
+        
+        return img, centers
 #---------------------------------------------Display Live Frame-----------------------------------------
     
     def display(self):
@@ -353,14 +393,10 @@ class camera:
         output, _ = self.pose_estimation(self.frame, aruco_dict, k, d)'''
         
         racetrack = self.crop_img(self.frame, 600, 80, 1000, 1150)
-
-        if racetrack.size == 0:
-            print(("Cropping cordinates are out of bounds"))
-        
-        print(f"Cropped racetrack size:{racetrack.shape}")
+        #racetrack =self.find_circle(racetrack)
 
         # Save cropped image to a temporary file
-        cv2.imwrite('temp.jpg', racetrack)
+        #cv2.imwrite('temp.jpg', racetrack)
 
         # Read the saved image back into a Mat-like object
         #racetrack_matlike = cv2.imread('temp.jpg', cv2.IMREAD_COLOR)

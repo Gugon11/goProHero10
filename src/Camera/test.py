@@ -1,12 +1,9 @@
 import cv2
 import numpy as np
 import pandas as pd
-import warnings
 
-# Suppress warnings
-warnings.filterwarnings("ignore")
 
-#This test.py serves as an aux to test some functions
+#-------------This test.py serves as an aux to test some functions--------------------------------
 
 def detect_cars(image):
     matrix_reader = pd.read_csv('camera_matrixlinear.txt', delim_whitespace=True, header=None)
@@ -222,7 +219,48 @@ def crop_img(image, x, y, h, w):
     cropped_img = image[y:y+h, x:x+w]
     return cropped_img
 
-image = cv2.imread("goProHero10/src/Camera/images/linear/img_0007.png")
+def find_circle(img):
+    # Convert image to gray
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Convert image to binary for white circle detection
+    _, img_bin = cv2.threshold(gray, 160, 255, cv2.THRESH_BINARY)
+
+    # Opening binary image to remove noise around the circles
+    close_kernel = np.ones((9, 9), np.uint8)
+    img_dilated = cv2.dilate(img_bin, close_kernel, iterations=1)
+    img_closed = cv2.erode(img_dilated, close_kernel, iterations=1)
+
+    # Find circles using Hough Circle Transform
+    circles = cv2.HoughCircles(
+        img_closed, 
+        cv2.HOUGH_GRADIENT, 
+        dp=1, 
+        minDist=20, 
+        param1=50, 
+        param2=30, 
+        minRadius=0, 
+        maxRadius=0
+    )
+
+    # List to store the centers of the circles
+    centers = []
+
+    # If circles are detected, draw them on the original image and store the centers
+    if circles is not None:
+        circles = np.uint16(np.around(circles))
+        for i in circles[0, :]:
+            center = (i[0], i[1])
+            centers.append(center)
+            # Draw the outer circle
+            cv2.circle(img, center, i[2], (0, 255, 0), 2)
+            # Draw the center of the circle
+            cv2.circle(img, center, 2, (0, 0, 255), 3)
+    
+    return img, centers
+
+
+'''image = cv2.imread("goProHero10/src/Camera/images/linear/img_0007.png")
 
 racetrack = crop_img(image, 600, 80, 1000, 1150)
 
@@ -241,10 +279,6 @@ if racetrack_matlike is not None:
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 else:
-    print("Error: Failed to read the saved image file.")
+    print("Error: Failed to read the saved image file.")'''
 
-'''centroids, res = detect_cars(image)
-print(centroids)
-im = cv2.resize(res, (960, 540))
-cv2.imshow("Output", im)'''
 
