@@ -223,24 +223,24 @@ def find_circle(img):
     # Convert image to gray
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # Convert image to binary for white circle detection
-    _, img_bin = cv2.threshold(gray, 160, 255, cv2.THRESH_BINARY)
+    # Adaptive thresholding for better binary conversion
+    img_bin = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
 
     # Opening binary image to remove noise around the circles
     close_kernel = np.ones((9, 9), np.uint8)
-    img_dilated = cv2.dilate(img_bin, close_kernel, iterations=1)
-    img_closed = cv2.erode(img_dilated, close_kernel, iterations=1)
+    img_dilated = cv2.dilate(img_bin, close_kernel, iterations=2)
+    img_closed = cv2.erode(img_dilated, close_kernel, iterations=2)
 
     # Find circles using Hough Circle Transform
     circles = cv2.HoughCircles(
         img_closed, 
         cv2.HOUGH_GRADIENT, 
-        dp=1, 
-        minDist=20, 
+        dp=1.2, 
+        minDist=100, # Adjusted minimum distance between circles
         param1=50, 
         param2=30, 
-        minRadius=0, 
-        maxRadius=0
+        minRadius=60, # Set a reasonable minimum radius
+        maxRadius=70 # Set a reasonable maximum radius
     )
 
     # List to store the centers of the circles
@@ -259,6 +259,14 @@ def find_circle(img):
     
     return img, centers
 
+image = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
+circles, center= find_circle(image)
+
+print(center)
+im = cv2.resize(circles, (960, 540))
+cv2.imshow("Output", im)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 '''image = cv2.imread("goProHero10/src/Camera/images/linear/img_0007.png")
 
