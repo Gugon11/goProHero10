@@ -219,28 +219,38 @@ def crop_img(image, x, y, h, w):
     cropped_img = image[y:y+h, x:x+w]
     return cropped_img
 
+def show_image(title, img):
+    # Resize image to fit screen for better visualization
+    im_resized = cv2.resize(img, (960, 540))
+    cv2.imshow(title, im_resized)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 def find_circle(img):
     # Convert image to gray
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    show_image("Gray image", gray)
 
     # Adaptive thresholding for better binary conversion
     img_bin = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    show_image("Binary Image", img_bin)
 
     # Opening binary image to remove noise around the circles
-    close_kernel = np.ones((9, 9), np.uint8)
-    img_dilated = cv2.dilate(img_bin, close_kernel, iterations=2)
-    img_closed = cv2.erode(img_dilated, close_kernel, iterations=2)
+    close_kernel = np.ones((3, 3), np.uint8)
+    img_dilated = cv2.dilate(img_bin, close_kernel, iterations=1)
+    img_closed = cv2.erode(img_dilated, close_kernel, iterations=1)
+    show_image("Opened Image", img_closed)
 
     # Find circles using Hough Circle Transform
     circles = cv2.HoughCircles(
         img_closed, 
         cv2.HOUGH_GRADIENT, 
-        dp=1.2, 
-        minDist=100, # Adjusted minimum distance between circles
+        dp=1.0, 
+        minDist=400, # Adjusted minimum distance between circles
         param1=50, 
         param2=30, 
-        minRadius=60, # Set a reasonable minimum radius
-        maxRadius=70 # Set a reasonable maximum radius
+        minRadius=10, # Set a reasonable minimum radius
+        maxRadius=30 # Set a reasonable maximum radius
     )
 
     # List to store the centers of the circles
