@@ -326,25 +326,28 @@ class camera:
     def find_circle(self, img):
         # Convert image to gray
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        #show_image("Gray image", gray)
 
-        # Convert image to binary for white circle detection
-        _, img_bin = cv2.threshold(gray, 160, 255, cv2.THRESH_BINARY)
+        # Adaptive thresholding for better binary conversion
+        img_bin = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+        #show_image("Binary Image", img_bin)
 
         # Opening binary image to remove noise around the circles
-        close_kernel = np.ones((9, 9), np.uint8)
+        close_kernel = np.ones((3, 3), np.uint8)
         img_dilated = cv2.dilate(img_bin, close_kernel, iterations=1)
         img_closed = cv2.erode(img_dilated, close_kernel, iterations=1)
+        #show_image("Opened Image", img_closed)
 
         # Find circles using Hough Circle Transform
         circles = cv2.HoughCircles(
             img_closed, 
             cv2.HOUGH_GRADIENT, 
-            dp=1, 
-            minDist=20, 
+            dp=1.0, 
+            minDist=400, # Adjusted minimum distance between circles
             param1=50, 
             param2=30, 
-            minRadius=0, 
-            maxRadius=0
+            minRadius=10, # Set a reasonable minimum radius
+            maxRadius=30 # Set a reasonable maximum radius
         )
 
         # List to store the centers of the circles
@@ -392,17 +395,18 @@ class camera:
 
         output, _ = self.pose_estimation(self.frame, aruco_dict, k, d)'''
         
-        racetrack = self.crop_img(self.frame, 600, 80, 1000, 1150)
-        #racetrack =self.find_circle(racetrack)
+        racetrack = self.crop_img(self.frame, 600, 80, 1000, 1200)
+        racetrack, center =self.find_circle(racetrack)
+        print("Circle Center:", center)
 
         # Save cropped image to a temporary file
         #cv2.imwrite('temp.jpg', racetrack)
 
         # Read the saved image back into a Mat-like object
         #racetrack_matlike = cv2.imread('temp.jpg', cv2.IMREAD_COLOR)
-
+        
         centroids, res = self.detect_cars(racetrack)
-        print(centroids)
+        print("Cars position", centroids)
 
         if res is None or res.size == 0:
             print("Detection result is empty")
