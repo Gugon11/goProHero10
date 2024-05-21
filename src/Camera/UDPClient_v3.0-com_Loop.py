@@ -1,13 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 28 15:32:46 2022
 
-@author: Conrado
-"""
-#%%
 '''
-Version: 3.0
-
 What it is: UDP Client
 
 What it does: 
@@ -51,7 +43,7 @@ while error:
     R = int(R)
     
     if (R==1):
-        enderecoIP = "127.0.0.1"
+        enderecoIP = "192.168.137.172"
     else:
         enderecoIP = input(">> IP: ")
     #end-if-else
