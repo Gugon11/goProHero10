@@ -412,6 +412,19 @@ class camera:
         centroids, res = self.detect_cars(racetrack)
         print("Cars position", centroids)
 
+        #Distance of each car to the origin in pixels
+        blue_px = centroids[0]-center
+        yellow_px = centroids[1]-center
+        pink_px = centroids[2]-center
+
+        #Ratio of pixel to millimeter obtained in pixel2mm.py
+        px2mm = 0.6337807227544455
+
+        #Distance of each car to the origin in mm
+        blue_mm = blue_px/px2mm
+        yellow_mm = yellow_px/px2mm
+        pink_mm = pink_px/px2mm
+
         if res is None or res.size == 0:
             print("Detection result is empty")
             return
@@ -419,9 +432,9 @@ class camera:
         cv2.imshow(self.windowName, res)
 
         while(camera.display()):
-            udpsender.send_data("blue", centroids[0], 45.0)
-            udpsender.send_data("yellow", centroids[1], 90.0)
-            udpsender.send_data("pink", centroids[2], 135.0)
+            udpsender.send_data("blue", blue_mm, 45.0)
+            udpsender.send_data("yellow", yellow_mm, 90.0)
+            udpsender.send_data("pink", pink_mm, 135.0)
             time.sleep(0.01667)  # Send data at 60 Hz
 
 
