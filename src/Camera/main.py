@@ -119,7 +119,6 @@ else:
         #Update the image on the frame:
         goProCamera.display()
         
-        
         #Check the Key presses:
         if (cv2.waitKey(1) & 0xFF == ord('q')):
             break

@@ -11,6 +11,7 @@ from utils.getCameras import get_available_cameras
 
 #pip install pygrabber==0.1
 from pygrabber.dshow_graph import FilterGraph
+from UDPsender import UDPSender
 
 class camera:
     def __init__(self, cameraConfig: str="camera", cameraName: str="GoPro Webcam", windowName: str="Frame") -> None:
@@ -346,8 +347,8 @@ class camera:
             minDist=400, # Adjusted minimum distance between circles
             param1=50, 
             param2=30, 
-            minRadius=10, # Set a reasonable minimum radius
-            maxRadius=30 # Set a reasonable maximum radius
+            minRadius=10,
+            maxRadius=30
         )
 
         # List to store the centers of the circles
@@ -394,16 +395,19 @@ class camera:
         aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
 
         output, _ = self.pose_estimation(self.frame, aruco_dict, k, d)'''
-        
+
+        udpsender = UDPSender()
+
+        initial_center = None
         racetrack = self.crop_img(self.frame, 600, 80, 1000, 1200)
-        racetrack, center =self.find_circle(racetrack)
-        print("Circle Center:", center)
 
-        # Save cropped image to a temporary file
-        #cv2.imwrite('temp.jpg', racetrack)
-
-        # Read the saved image back into a Mat-like object
-        #racetrack_matlike = cv2.imread('temp.jpg', cv2.IMREAD_COLOR)
+        #Check if center was detected. If it was, it uses that value for the rest of the live video
+        if initial_center is None:
+            racetrack, initial_center =self.find_circle(racetrack)
+        else:
+            center = initial_center
+        
+        print("Circle Center", center)
         
         centroids, res = self.detect_cars(racetrack)
         print("Cars position", centroids)
@@ -414,13 +418,19 @@ class camera:
 
         cv2.imshow(self.windowName, res)
 
+        while(camera.display()):
+            udpsender.send_data("blue", centroids[0], 45.0)
+            udpsender.send_data("yellow", centroids[1], 90.0)
+            udpsender.send_data("pink", centroids[2], 135.0)
+            time.sleep(0.01667)  # Send data at 60 Hz
+
+
+        
+
         key = cv2.waitKey(1)
         if key == 27: #ESC Key to exit
             pass
         
-        # After processing, delete the temporary file
-        '''if os.path.exists('temp.jpg'):
-            os.remove('temp.jpg')'''
     #end-def
     
     
