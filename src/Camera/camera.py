@@ -431,11 +431,13 @@ class camera:
 
         cv2.imshow(self.windowName, res)
 
-        while(camera.display()):
+        while(self.cap.isOpened()):
             udpsender.send_data("blue", blue_mm, 45.0)
             udpsender.send_data("yellow", yellow_mm, 90.0)
             udpsender.send_data("pink", pink_mm, 135.0)
             time.sleep(0.01667)  # Send data at 60 Hz
+        
+        udpsender.close()
 
 
         

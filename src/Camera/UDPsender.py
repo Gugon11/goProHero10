@@ -6,6 +6,7 @@ class UDPSender:
         self.port = port
         self.udp_client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+    #Mandar posiçao do carro, posiçao do prox checkpoint e erro entre os 2
     def send_data(self, car_id, position, direction):
         message = f"{car_id},{position[0]},{position[1]},{position[2]},{direction}"
         data = message.encode('utf-8')
