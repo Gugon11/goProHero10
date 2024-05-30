@@ -54,24 +54,9 @@ def detect_cars(image):
         if centroid is not None:
             cv2.circle(result, centroid, 10, (255, 255, 255), -1)
             cv2.putText(result, "centroid", (centroid[0] - 25, centroid[1] - 25), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
-
-        # Undistort pixel coordinates
-        centroid_und = cv2.undistortPoints(centroid, matrix_coefficients, distortion_coefficients)
-        centroid_und = centroid_und[0, 0]
-            
-        # Convert pixel coordinates to direction vector in camera coordinates
-        dir_vector = np.linalg.inv(matrix_coefficients) @ np.append(centroid_und, 1)
-            
-        #Normalize direction vector
-        dir_vector /= np.linalg.norm(dir_vector)
-
-        depth = 1.80
-
-        # Real-world coordinates
-        rw_centroid = dir_vector * depth
             
             
-        return rw_centroid, result
+        return centroid, result
 
     def detect_red_cars(image):
         # Convert the image to HSV color space
@@ -229,17 +214,17 @@ def show_image(title, img):
 def find_circle(img):
     # Convert image to gray
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    show_image("Gray image", gray)
+    #show_image("Gray image", gray)
 
     # Adaptive thresholding for better binary conversion
     img_bin = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    show_image("Binary Image", img_bin)
+    #show_image("Binary Image", img_bin)
 
     # Opening binary image to remove noise around the circles
     close_kernel = np.ones((3, 3), np.uint8)
     img_dilated = cv2.dilate(img_bin, close_kernel, iterations=1)
     img_closed = cv2.erode(img_dilated, close_kernel, iterations=1)
-    show_image("Opened Image", img_closed)
+    #show_image("Opened Image", img_closed)
 
     # Find circles using Hough Circle Transform
     circles = cv2.HoughCircles(
@@ -270,33 +255,32 @@ def find_circle(img):
     return img, centers
 
 image = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
-circles, center= find_circle(image)
+image = crop_img(image, 600, 80, 1000, 1200)
 
-print(center)
+circles, center= find_circle(image)
+centroids, circles = detect_cars(image)
+
+center = np.array(center)
+centroids = np.array(centroids)
+
+#Difference between car coordinates and Origin coordinates
+centroids_origin = centroids -  center
+
+#Ratio of pixel to millimeter obtained in pixel2mm.py
+px2mm = 0.6337807227544455
+
+center_cm = (center/px2mm)/10 #centimeter
+centroids_cm = (centroids_origin/px2mm)/10 #centimeter
+
+print("Origin coords: ", center_cm)
+print("Blue car: ", centroids_cm[0])
+print("Yellow car: ", centroids_cm[1])
+print("Pink car: ", centroids_cm[2])
+
 im = cv2.resize(circles, (960, 540))
 cv2.imshow("Output", im)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
-'''image = cv2.imread("goProHero10/src/Camera/images/linear/img_0007.png")
-
-racetrack = crop_img(image, 600, 80, 1000, 1150)
-
-# Save cropped image to a temporary file
-cv2.imwrite('temp.jpg', racetrack)
-
-# Read the saved image back into a Mat-like object
-racetrack_matlike = cv2.imread('temp.jpg', cv2.IMREAD_COLOR)
-
-centroids, res = detect_cars(racetrack_matlike)
-print(centroids)
-
-if racetrack_matlike is not None:
-    im = cv2.resize(res, (960, 540))
-    cv2.imshow("Output", im)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-else:
-    print("Error: Failed to read the saved image file.")'''
 
 

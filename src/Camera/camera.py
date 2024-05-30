@@ -398,46 +398,47 @@ class camera:
 
         udpsender = UDPSender()
 
-        initial_center = None
+        #Ratio of pixel to millimeter obtained in pixel2mm.py
+        px2mm = 0.6337807227544455
+        
         racetrack = self.crop_img(self.frame, 600, 80, 1000, 1200)
-
+        
         #Check if center was detected. If it was, it uses that value for the rest of the live video
-        if initial_center is None:
+        '''if initial_center is None:
             racetrack, initial_center =self.find_circle(racetrack)
         else:
-            center = initial_center
-        
+            center = initial_center'''
+        racetrack, center = self.find_circle(racetrack)
         print("Circle Center", center)
         
         centroids, res = self.detect_cars(racetrack)
         print("Cars position", centroids)
 
-        #Distance of each car to the origin in pixels
-        blue_px = centroids[0]-center
-        yellow_px = centroids[1]-center
-        pink_px = centroids[2]-center
+        
 
-        #Ratio of pixel to millimeter obtained in pixel2mm.py
-        px2mm = 0.6337807227544455
+        
 
         #Distance of each car to the origin in mm
-        blue_mm = blue_px/px2mm
+        '''blue_mm = blue_px/px2mm
         yellow_mm = yellow_px/px2mm
-        pink_mm = pink_px/px2mm
+        pink_mm = pink_px/px2mm'''
 
         if res is None or res.size == 0:
             print("Detection result is empty")
             return
 
+        '''print("Blue Car position ", blue_mm)
+        print("Yellow Car position ", yellow_mm)
+        print("Pink Car position ", pink_mm)'''
         cv2.imshow(self.windowName, res)
 
-        while(self.cap.isOpened()):
+        '''while(self.cap.isOpened()):
             udpsender.send_data("blue", blue_mm, 45.0)
             udpsender.send_data("yellow", yellow_mm, 90.0)
             udpsender.send_data("pink", pink_mm, 135.0)
             time.sleep(0.01667)  # Send data at 60 Hz
         
-        udpsender.close()
+        udpsender.close()'''
 
 
         
