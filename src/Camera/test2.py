@@ -18,4 +18,4 @@ my_lst = [(1,2), (1,8), (3,5)]
 array = np.array(my_lst)
 
 coords = array - v1
-print(v2[2])
+print(array[1][0])

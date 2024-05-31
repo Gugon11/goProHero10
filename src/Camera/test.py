@@ -47,8 +47,9 @@ def detect_cars(image):
                 if moments["m00"] != 0:
                     cX = int(moments["m10"] / moments["m00"])
                     cY = int(moments["m01"] / moments["m00"])
-                    centroid = (cX, cY)
-                    max_contour_area = area
+                    if 600 <= cX <= 1650 and cY > 85:  # Check if centroid is within the specified bounds
+                        centroid = (cX, cY)
+                        max_contour_area = area
         
         # Draw the centroid on the result image
         if centroid is not None:
@@ -103,8 +104,9 @@ def detect_cars(image):
                 if moments["m00"] != 0:
                     cX = int(moments["m10"] / moments["m00"])
                     cY = int(moments["m01"] / moments["m00"])
-                    centroid = (cX, cY)
-                    max_contour_area = area
+                    if 600 <= cX <= 1650 and cY > 85:  # Check if centroid is within the specified bounds
+                        centroid = (cX, cY)
+                        max_contour_area = area
         
         # Draw the centroid on the result image
         if centroid is not None:
@@ -158,8 +160,9 @@ def detect_cars(image):
                 if moments["m00"] != 0:
                     cX = int(moments["m10"] / moments["m00"])
                     cY = int(moments["m01"] / moments["m00"])
-                    centroid = (cX, cY)
-                    max_contour_area = area
+                    if 600 <= cX <= 1650 and cY > 85:  # Check if centroid is within the specified bounds
+                        centroid = (cX, cY)
+                        max_contour_area = area
         
         # Draw the centroid on the result image
         if centroid is not None:
@@ -255,7 +258,7 @@ def find_circle(img):
     return img, centers
 
 image = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
-image = crop_img(image, 600, 80, 1000, 1200)
+#image = crop_img(image, 600, 80, 1000, 1200)
 
 circles, center= find_circle(image)
 centroids, circles = detect_cars(image)

@@ -88,7 +88,7 @@ class camera:
         marker_pos = -np.dot(rotation_matrix_inv, tvec)
 
         return marker_pos
-#-------------------------------------------------------------------------------------------------
+
     def pose_estimation(self, frame, aruco_dict, matrix_coefficients, distortion_coefficients):
         ret, frame = self.cap.read()
         matrix_reader = pd.read_csv('camera_matrixlinear.txt', delim_whitespace=True, header=None)
@@ -174,8 +174,9 @@ class camera:
                     if moments["m00"] != 0:
                         cX = int(moments["m10"] / moments["m00"])
                         cY = int(moments["m01"] / moments["m00"])
-                        centroid = (cX, cY)
-                        max_contour_area = area
+                        if 600 <= cX <= 1650 and cY > 85:  # Check if centroid is within the specified bounds
+                            centroid = (cX, cY)
+                            max_contour_area = area
             
             # Draw the centroid on the result image
             if centroid is not None:
@@ -226,8 +227,9 @@ class camera:
                     if moments["m00"] != 0:
                         cX = int(moments["m10"] / moments["m00"])
                         cY = int(moments["m01"] / moments["m00"])
-                        centroid = (cX, cY)
-                        max_contour_area = area
+                        if 600 <= cX <= 1650 and cY > 85:  # Check if centroid is within the specified bounds
+                            centroid = (cX, cY)
+                            max_contour_area = area
 
             # Draw the centroid on the result image
             if centroid is not None:
@@ -281,8 +283,9 @@ class camera:
                     if moments["m00"] != 0:
                         cX = int(moments["m10"] / moments["m00"])
                         cY = int(moments["m01"] / moments["m00"])
-                        centroid = (cX, cY)
-                        max_contour_area = area
+                        if 600 <= cX <= 1650 and cY > 85:  # Check if centroid is within the specified bounds
+                            centroid = (cX, cY)
+                            max_contour_area = area
             
             # Draw the centroid on the result image
             if centroid is not None:
@@ -388,6 +391,7 @@ class camera:
             cv2.putText(self.frame, fps, (7, 70), font, 3, (100, 255, 0), 3, cv2.LINE_AA) 
         #end-if-else
 
+        #--------------------------With ArUco Markers---------------------------------------------
         '''matrix_reader = pd.read_csv('camera_matrixlinear.txt', delim_whitespace=True, header=None)
         k = matrix_reader.to_numpy()
         dist_reader = pd.read_csv('dist_coeffslinear.txt', delim_whitespace=True, header=None)
@@ -396,40 +400,42 @@ class camera:
 
         output, _ = self.pose_estimation(self.frame, aruco_dict, k, d)'''
 
+        #-----------------------With Color Detection-------------------------------------------------
         udpsender = UDPSender()
 
         #Ratio of pixel to millimeter obtained in pixel2mm.py
         px2mm = 0.6337807227544455
         
-        racetrack = self.crop_img(self.frame, 600, 80, 1000, 1200)
+        #racetrack = self.crop_img(self.frame, 600, 80, 1000, 1200)
         
         #Check if center was detected. If it was, it uses that value for the rest of the live video
         '''if initial_center is None:
             racetrack, initial_center =self.find_circle(racetrack)
         else:
             center = initial_center'''
-        racetrack, center = self.find_circle(racetrack)
+        racetrack, center = self.find_circle(self.frame)
         print("Circle Center", center)
         
         centroids, res = self.detect_cars(racetrack)
         print("Cars position", centroids)
-
         
+        center = np.array(center)
+        centroids =np.array(centroids)
 
+        #Difference between origin coordinates and car coordinates
+        centroids_origin = center -  centroids
+
+        #Ratio of pixel to millimeter obtained in pixel2mm.py
+        px2mm = 0.6337807227544455
         
+        center_cm = (center/px2mm)/10 #centimeter
+        centroids_cm = (centroids_origin/px2mm)/10 #centimeter
 
-        #Distance of each car to the origin in mm
-        '''blue_mm = blue_px/px2mm
-        yellow_mm = yellow_px/px2mm
-        pink_mm = pink_px/px2mm'''
+        print("Origin coords: ", center_cm)
+        print("Blue car: ", centroids_cm[0])
+        print("Yellow car: ", centroids_cm[1])
+        print("Pink car: ", centroids_cm[2])
 
-        if res is None or res.size == 0:
-            print("Detection result is empty")
-            return
-
-        '''print("Blue Car position ", blue_mm)
-        print("Yellow Car position ", yellow_mm)
-        print("Pink Car position ", pink_mm)'''
         cv2.imshow(self.windowName, res)
 
         '''while(self.cap.isOpened()):
