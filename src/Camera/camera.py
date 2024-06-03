@@ -429,7 +429,11 @@ class camera:
         #print("Cars position", centroids)
         
         center = np.array(center)
-        centroids =np.array(centroids)
+        
+        #Ensure centroids are not None before converting to numpy array
+        zero = np.zeros_like(center)
+        valid_centroids = [c if c is not None else zero for c in centroids]
+        centroids = np.array(valid_centroids)
 
         #Difference between origin coordinates and car coordinates
         centroids_origin_b = center -  centroids[0]
