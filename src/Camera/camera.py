@@ -413,28 +413,41 @@ class camera:
             racetrack, initial_center =self.find_circle(racetrack)
         else:
             center = initial_center'''
-        racetrack, center = self.find_circle(self.frame)
-        print("Circle Center", center)
+        initial_center = None
+        center = None
         
-        centroids, res = self.detect_cars(racetrack)
-        print("Cars position", centroids)
+        # While loop to find the initial center
+        while initial_center is None:
+            _, initial_center = self.find_circle(self.frame)
+            if initial_center is not None:
+                center = initial_center
+            else:
+                print("Center not found, retrying...")
+        #print("Circle Center", center)
+        
+        centroids, res = self.detect_cars(self.frame)
+        #print("Cars position", centroids)
         
         center = np.array(center)
         centroids =np.array(centroids)
 
         #Difference between origin coordinates and car coordinates
-        centroids_origin = center -  centroids
+        centroids_origin_b = center -  centroids[0]
+        centroids_origin_y = center -  centroids[1]
+        centroids_origin_p = center -  centroids[2]
 
         #Ratio of pixel to millimeter obtained in pixel2mm.py
         px2mm = 0.6337807227544455
         
         center_cm = (center/px2mm)/10 #centimeter
-        centroids_cm = (centroids_origin/px2mm)/10 #centimeter
+        centroids_cm_b = (centroids_origin_b/px2mm)/10 #centimeter
+        centroids_cm_y = (centroids_origin_y/px2mm)/10
+        centroids_cm_p = (centroids_origin_p/px2mm)/10
 
         print("Origin coords: ", center_cm)
-        print("Blue car: ", centroids_cm[0])
-        print("Yellow car: ", centroids_cm[1])
-        print("Pink car: ", centroids_cm[2])
+        print("Blue car: ", centroids_cm_b)
+        print("Yellow car: ", centroids_cm_y)
+        print("Pink car: ", centroids_cm_p)
 
         cv2.imshow(self.windowName, res)
 
