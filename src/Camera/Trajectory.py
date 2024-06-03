@@ -43,8 +43,8 @@ class Trajectory:
         closest_point_on_circle = np.array([0, 0, 0])
 
         if self.type_of_curve[self.index_type_of_curve] == 1:
-            final_point1 = np.add(curve_point1, np.array([-100, 0, 0]))
-            final_point2 = np.add(curve_point2, np.array([0, -100, 0]))
+            final_point1 = np.add(curve_point1, np.array([0, -100, 0]))
+            final_point2 = np.add(curve_point2, np.array([-100, 0, 0]))
         
         elif self.type_of_curve[self.index_type_of_curve] == 2:
             center = np.array([(curve_point1[0] + curve_point2[0]) / 2,
@@ -55,9 +55,9 @@ class Trajectory:
             v = car_position - center
             vec1 = curve_point1 - center
             vec2 = curve_point2 - center
-            start_angle = np.arctan2(vec1[1], vec1[0])
-            end_angle = np.arctan2(vec2[1], vec2[0])
-            car_angle = np.arctan2(v[1], v[0])
+            start_angle = np.arctan2(vec1[0], vec1[1])
+            end_angle = np.arctan2(vec2[0], vec2[1])
+            car_angle = np.arctan2(v[0], v[1])
 
             if start_angle < 0:
                 start_angle += 2 * np.pi
@@ -79,21 +79,21 @@ class Trajectory:
             return closest_point_on_circle
         
         elif self.type_of_curve[self.index_type_of_curve] == 3:
-            final_point1 = np.add(curve_point1, np.array([0, 100, 0]))
-            final_point2 = np.add(curve_point2, np.array([-100, 0, 0]))
+            final_point1 = np.add(curve_point1, np.array([100, 0, 0]))
+            final_point2 = np.add(curve_point2, np.array([0, -100, 0]))
 
-        a1 = np.subtract(final_point1[1], curve_point1[1])
-        b1 = np.subtract(curve_point1[0], final_point1[0])
-        c1 = (a1 * curve_point1[0]) + (b1 * curve_point1[1])
+        a1 = np.subtract(final_point1[0], curve_point1[0])
+        b1 = np.subtract(curve_point1[1], final_point1[1])
+        c1 = (a1 * curve_point1[1]) + (b1 * curve_point1[0])
 
-        a2 = np.subtract(final_point2[1], curve_point2[1])
-        b2 = np.subtract(curve_point2[0], final_point2[0])
-        c2 = (a2 * curve_point2[0]) + (b2 * curve_point2[1])
+        a2 = np.subtract(final_point2[0], curve_point2[0])
+        b2 = np.subtract(curve_point2[1], final_point2[1])
+        c2 = (a2 * curve_point2[1]) + (b2 * curve_point2[0])
 
         determinant = (a1 * b2) - (a2 * b1)
 
-        x = ((b2 * c1) - (b1 * c2)) / determinant
-        y = ((a1 * c2) - (a2 * c1)) / determinant
+        y = ((b2 * c1) - (b1 * c2)) / determinant
+        x = ((a1 * c2) - (a2 * c1)) / determinant
 
         center = np.array([x, y, curve_point1[2]])
 
@@ -103,9 +103,9 @@ class Trajectory:
         vec1 = curve_point1 - center
         vec2 = curve_point2 - center
 
-        start_angle = np.arctan2(vec1[1], vec1[0])
-        end_angle = np.arctan2(vec2[1], vec2[0])
-        car_angle = np.arctan2(v[1], v[0])
+        start_angle = np.arctan2(vec1[0], vec1[1])
+        end_angle = np.arctan2(vec2[0], vec2[1])
+        car_angle = np.arctan2(v[0], v[1])
 
         if start_angle < 0:
             start_angle += 2 * np.pi
@@ -230,8 +230,8 @@ class Trajectory:
                 curve_point2 = self.circles_pos_list[self.short_dist_index+1]
 
             if self.type_of_curve[self.index_type_of_curve_short_distance] == 1:
-                finalpoint1 = curve_point1 + np.array([-100, 0, 0])
-                finalpoint2 = curve_point2 + np.array([0, -100, 0])
+                finalpoint1 = curve_point1 + np.array([0, -100, 0])
+                finalpoint2 = curve_point2 + np.array([-100, 0, 0])
             
             elif self.type_of_curve[self.index_type_of_curve_short_distance] == 2:
                 center = np.array([(curve_point1[0] + curve_point2[0]) / 2, (curve_point1[1] + curve_point2[1]) / 2, (curve_point1[2] + curve_point2[2]) / 2])
@@ -243,20 +243,20 @@ class Trajectory:
                 return total_distance
             
             elif self.type_of_curve[self.index_type_of_curve_short_distance] == 3:
-                finalpoint1 = curve_point1 + np.array([0, 100, 0])
-                finalpoint2 = curve_point2 + np.array([-100, 0, 0])
+                finalpoint1 = curve_point1 + np.array([100, 0, 0])
+                finalpoint2 = curve_point2 + np.array([0, -100, 0])
 
-            a1 = finalpoint1[1] - curve_point1[1]
-            b1 = curve_point1[0] - finalpoint1[0]
-            c1 = (a1 * curve_point1[0]) + (b1 * curve_point1[1])
+            a1 = finalpoint1[0] - curve_point1[0]
+            b1 = curve_point1[1] - finalpoint1[1]
+            c1 = (a1 * curve_point1[1]) + (b1 * curve_point1[0])
 
-            a2 = finalpoint2[1] - curve_point2[1]
-            b2 = curve_point2[0] - finalpoint2[0]
-            c2 = (a2 * curve_point2[0]) + (b2 * curve_point2[1])
+            a2 = finalpoint2[0] - curve_point2[0]
+            b2 = curve_point2[1] - finalpoint2[1]
+            c2 = (a2 * curve_point2[1]) + (b2 * curve_point2[0])
 
             determinant = (a1 * b2) - (a2 * b1)
-            x = ((b2 * c1) - (b1 * c2)) / determinant
-            y = ((a1 * c2) - (a2 * c1)) / determinant
+            y = ((b2 * c1) - (b1 * c2)) / determinant
+            x = ((a1 * c2) - (a2 * c1)) / determinant
 
             center = np.array([x, y, curve_point1[2]])
             r = (np.linalg.norm(curve_point1 - center) + np.linalg.norm(curve_point2 - center)) / 2
@@ -273,21 +273,21 @@ class Trajectory:
                 curve_point1 = self.circles_pos_list[i]
                 curve_point2 = self.circles_pos_list[0]
 
-                final_point1 = curve_point1 + np.array([0, 100, 0])
-                final_point2 = curve_point2 + np.array([-100, 0, 0])
+                final_point1 = curve_point1 + np.array([100, 0, 0])
+                final_point2 = curve_point2 + np.array([0, -100, 0])
 
-                a1 = final_point1[1] - curve_point1[1]
-                b1 = curve_point1[0] - final_point1[0]
-                c1 = (a1 * curve_point1[0]) + (b1 * curve_point1[1])
+                a1 = final_point1[0] - curve_point1[0]
+                b1 = curve_point1[1] - final_point1[1]
+                c1 = (a1 * curve_point1[1]) + (b1 * curve_point1[0])
 
-                a2 = final_point2[1] - curve_point2[1]
-                b2 = curve_point2[0] - final_point2[0]
-                c2 = (a2 * curve_point2[0]) + (b2 * curve_point2[1])
+                a2 = final_point2[0] - curve_point2[0]
+                b2 = curve_point2[1] - final_point2[1]
+                c2 = (a2 * curve_point2[1]) + (b2 * curve_point2[0])
 
                 determinant = (a1 * b2) - (a2 * b1)
 
-                x = ((b2 * c1) - (b1 * c2)) / determinant
-                y = ((a1 * c2) - (a2 * c1)) / determinant
+                y = ((b2 * c1) - (b1 * c2)) / determinant
+                x = ((a1 * c2) - (a2 * c1)) / determinant
 
                 center = np.array([x, y, curve_point1[2]])
                 r = (np.linalg.norm(curve_point1 - center)) / 2 + (np.linalg.norm(curve_point2 - center)) / 2
@@ -300,27 +300,27 @@ class Trajectory:
                     self.index_type_of_curve = 0
             else:
                 if self.segment_identifier[i] == 1:  # if straight
-                    self.lenght_of_each_segment.append((self.circles_pos_list[i] - np.linalg.norm(self.circles_pos_list[i + 1])))
+                    self.lenght_of_each_segment.append((np.linalg.norm(self.circles_pos_list[i] - self.circles_pos_list[i + 1])))
                 else:  # if curve
                     curve_point1 = self.circles_pos_list_pos_list[i]
                     curve_point2 = self.circles_pos_list_pos_list[i + 1]
 
                     if self.type_of_curve[self.index_type_of_curve] == 1:
-                        final_point1 = curve_point1 + np.array([-100, 0, 0])
-                        final_point2 = curve_point2 + np.array([0, -100, 0])
+                        final_point1 = curve_point1 + np.array([0, -100, 0])
+                        final_point2 = curve_point2 + np.array([-100, 0, 0])
 
-                        a1 = final_point1[1] - curve_point1[1]
-                        b1 = curve_point1[0] - final_point1[0]
-                        c1 = (a1 * curve_point1[0]) + (b1 * curve_point1[1])
+                        a1 = final_point1[0] - curve_point1[0]
+                        b1 = curve_point1[1] - final_point1[1]
+                        c1 = (a1 * curve_point1[1]) + (b1 * curve_point1[0])
 
-                        a2 = final_point2[1] - curve_point2[1]
-                        b2 = curve_point2[0] - final_point2[0]
-                        c2 = (a2 * curve_point2[0]) + (b2 * curve_point2[1])
+                        a2 = final_point2[0] - curve_point2[0]
+                        b2 = curve_point2[1] - final_point2[1]
+                        c2 = (a2 * curve_point2[1]) + (b2 * curve_point2[0])
 
                         determinant = (a1 * b2) - (a2 * b1)
 
-                        x = ((b2 * c1) - (b1 * c2)) / determinant
-                        z = ((a1 * c2) - (a2 * c1)) / determinant
+                        y = ((b2 * c1) - (b1 * c2)) / determinant
+                        x = ((a1 * c2) - (a2 * c1)) / determinant
 
                         center = np.array([x, y, curve_point1[2]])
                         r = (np.linalg.norm(curve_point1 - center)) / 2 + (np.linalg.norm(curve_point2 - center)) / 2
@@ -339,4 +339,92 @@ class Trajectory:
                         self.index_type_of_curve = 0
 
         self.index_type_of_curve = 0  # make sure the index_type_of_curve is reset
-                
+
+    def get_sign_of_distance_to_trajectory_v2(self, car_pos = np.array([])):
+        sign = 1.0
+        if self.short_dist_index == len(self.circles_pos_list) - 1:
+            curve_point1 = self.circles_pos_list[self.short_dist_index]
+            curve_point2 = self.circles_pos_list[0]
+
+            final_point1 = curve_point1 + np.array([100, 0, 0])
+            final_point2 = curve_point2 + np.array([0, -100, 0])
+
+            a1 = final_point1[0] - curve_point1[0]
+            b1 = curve_point1[1] - final_point1[1]
+            c1 = a1 * curve_point1[1] + b1 * curve_point1[0]
+
+            a2 = final_point2[0] - curve_point2[0]
+            b2 = curve_point2[1] - final_point2[1]
+            c2 = a2 * curve_point2[1] + b2 * curve_point2[0]
+
+            determinant = a1 * b2 - a2 * b1
+
+            y = (b2 * c1 - b1 * c2) / determinant
+            x = (a1 * c2 - a2 * c1) / determinant
+
+            center = np.array([x, y, curve_point1[2]])
+            r = (np.linalg.norm(center - curve_point1)) / 2 + (np.linalg.norm(center - curve_point2)) / 2
+
+            dist = (np.linalg.norm(center - car_pos)) - r
+            sign = 1.0 if dist >= 0 else -1.0
+
+            return sign
+        else:
+            if self.segment_identifier[self.short_dist_index] == 1:
+                delta = 0
+                if self.short_dist_index == 0:
+                    y = (self.circles_pos_list[self.short_dist_index][1] + self.circles_pos_list[self.short_dist_index + 1][1]) / 2
+                    delta = abs(y) - abs(car_pos[1])
+                elif self.short_dist_index == 2:
+                    x = (self.circles_pos_list[self.short_dist_index][0] + self.circles_pos_list[self.short_dist_index + 1][0]) / 2
+                    delta = abs(x) - abs(car_pos[0])
+                elif self.short_dist_index == 6:
+                    x = (self.circles_pos_list[self.short_dist_index][0] + self.circles_pos_list[self.short_dist_index + 1][0]) / 2
+                    delta = abs(car_pos[0]) - abs(x)
+
+                sign = 1.0 if delta >= 0 else -1.0
+
+                return sign
+            else:
+                curve_point1 = self.circles_pos_list[self.short_dist_index]
+                curve_point2 = self.circles_pos_list[self.short_dist_index + 1]
+
+                if self.type_of_curve[self.index_type_of_curve_short_distance] == 1:
+                    final_point1 = curve_point1 + np.array([0, -100, 0])
+                    final_point2 = curve_point2 + np.array([-100, 0, 0])
+                elif self.type_of_curve[self.index_type_of_curve_short_distance] == 2:
+                    center = (curve_point1 + curve_point2) / 2
+                    r1 = (np.linalg.norm(center - curve_point1)) / 2 + (np.linalg.norm(center - curve_point2)) / 2
+
+                    dist = (np.linalg.norm(center - car_pos)) - r1
+
+                    if self.short_dist_index == 4:
+                        sign = -1.0 if dist >= 0 else 1.0
+                    else:
+                        sign = 1.0 if dist >= 0 else -1.0
+
+                    return sign
+                elif self.type_of_curve[self.index_type_of_curve_short_distance] == 3:
+                    final_point1 = curve_point1 + np.array([100, 0, 0])
+                    final_point2 = curve_point2 + np.array([0, -100, 0])
+
+                a1 = final_point1[0] - curve_point1[0]
+                b1 = curve_point1[1] - final_point1[1]
+                c1 = a1 * curve_point1[1] + b1 * curve_point1[0]
+
+                a2 = final_point2[0] - curve_point2[0]
+                b2 = curve_point2[1] - final_point2[1]
+                c2 = (a2 * curve_point2[1]) + (b2 * curve_point2[0])
+
+                determinant = (a1 * b2) - (a2 * b1)
+
+                y = ((b2 * c1) - (b1 * c2)) / determinant
+                x = ((a1 * c2) - (a2 * c1)) / determinant
+
+                center = np.array([x, y, curve_point1[2]])
+                r = (np.linalg.norm(curve_point1 - center)) / 2 + (np.linalg.norm(curve_point2 - center)) / 2
+
+                dist = (np.linalg.norm(center - car_pos)) - r
+                sign = 1.0 if dist >= 0 else -1.0
+
+                return sign
