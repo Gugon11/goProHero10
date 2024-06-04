@@ -175,7 +175,7 @@ class camera:
                         cX = int(moments["m10"] / moments["m00"])
                         cY = int(moments["m01"] / moments["m00"])
                         if 600 <= cX <= 1650 and cY > 85:  # Check if centroid is within the specified bounds
-                            centroid = (cX, cY)
+                            centroid = np.array([cX, cY])
                             max_contour_area = area
             
             # Draw the centroid on the result image
@@ -228,7 +228,7 @@ class camera:
                         cX = int(moments["m10"] / moments["m00"])
                         cY = int(moments["m01"] / moments["m00"])
                         if 600 <= cX <= 1650 and cY > 85:  # Check if centroid is within the specified bounds
-                            centroid = (cX, cY)
+                            centroid = np.array([cX, cY])
                             max_contour_area = area
 
             # Draw the centroid on the result image
@@ -284,7 +284,7 @@ class camera:
                         cX = int(moments["m10"] / moments["m00"])
                         cY = int(moments["m01"] / moments["m00"])
                         if 600 <= cX <= 1650 and cY > 85:  # Check if centroid is within the specified bounds
-                            centroid = (cX, cY)
+                            centroid = np.array([cX, cY])
                             max_contour_area = area
             
             # Draw the centroid on the result image
@@ -321,10 +321,13 @@ class camera:
         # Combine adjusted results
         combined_result = cv2.add(cv2.add(blue_result_adjusted, yellow_result_adjusted), pink_result_adjusted)
 
-        # Combine centroids
-        all_centroids = [blue_centroids, yellow_centroids, pink_centroids]
+        # Combine centroids. If they are none (0, 0) array is put
+        all_centroids = [blue_centroids if blue_centroids is not None else np.array([0, 0]),
+                         yellow_centroids if yellow_centroids is not None else np.array([0, 0]),
+                         pink_centroids if pink_centroids is not None else np.array([0, 0])]
 
-        return all_centroids, combined_result
+        all_cent = np.array(all_centroids)
+        return all_cent, combined_result
 
 
     def find_circle(self, img):
@@ -355,13 +358,13 @@ class camera:
         )
 
         # List to store the centers of the circles
-        centers = []
+        centers = np.array([])
 
         # If circles are detected, draw them on the original image and store the centers
         if circles is not None:
             circles = np.uint16(np.around(circles))
             for i in circles[0, :]:
-                center = (i[0], i[1])
+                center = np.array([i[0], i[1]])
                 centers.append(center)
                 # Draw the outer circle
                 cv2.circle(img, center, i[2], (0, 255, 0), 2)
@@ -405,40 +408,37 @@ class camera:
 
         #Ratio of pixel to millimeter obtained in pixel2mm.py
         px2mm = 0.6337807227544455
+
+        #Array of all the checkpoints obtained in test.py
+        checkPoints = np.array([(858, 906),
+                                (1380, 926),
+                                (1566, 720),
+                                (1576, 326),
+                                (1194, 344),
+                                (926, 338),
+                                (704, 338),
+                                (716, 722)])
         
-        #racetrack = self.crop_img(self.frame, 600, 80, 1000, 1200)
-        
-        #Check if center was detected. If it was, it uses that value for the rest of the live video
-        '''if initial_center is None:
-            racetrack, initial_center =self.find_circle(racetrack)
-        else:
-            center = initial_center'''
         initial_center = None
         center = None
         
-        # While loop to find the initial center
+        '''#loop to find the initial center
         while initial_center is None:
             _, initial_center = self.find_circle(self.frame)
             if initial_center is not None:
                 center = initial_center
+                break
             else:
                 print("Center not found, retrying...")
-        #print("Circle Center", center)
+        #print("Circle Center", center)'''
         
         centroids, res = self.detect_cars(self.frame)
-        #print("Cars position", centroids)
         
-        center = np.array(center)
         
-        #Ensure centroids are not None before converting to numpy array
-        zero = np.zeros_like(center)
-        valid_centroids = [c if c is not None else zero for c in centroids]
-        centroids = np.array(valid_centroids)
-
-        #Difference between origin coordinates and car coordinates
-        centroids_origin_b = center -  centroids[0]
-        centroids_origin_y = center -  centroids[1]
-        centroids_origin_p = center -  centroids[2]
+        '''#Difference between origin coordinates and car coordinates
+        centroids_origin_b = centroids[0] - center
+        centroids_origin_y = centroids[1] - center
+        centroids_origin_p = centroids[2] - center
 
         #Ratio of pixel to millimeter obtained in pixel2mm.py
         px2mm = 0.6337807227544455
@@ -451,7 +451,7 @@ class camera:
         print("Origin coords: ", center_cm)
         print("Blue car: ", centroids_cm_b)
         print("Yellow car: ", centroids_cm_y)
-        print("Pink car: ", centroids_cm_p)
+        print("Pink car: ", centroids_cm_p)'''
 
         cv2.imshow(self.windowName, res)
 

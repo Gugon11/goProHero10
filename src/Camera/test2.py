@@ -11,11 +11,22 @@ def angle_between(v1, v2):
     return angle_degrees
 
 
-v1 = np.array([1,1])
-v2 = np.array([0, 1, 0])
+v1 = np.array([2,3])
+v2 = None
 
 my_lst = [(1,2), (1,8), (3,5)]
 array = np.array(my_lst)
 
-coords = array - v1
-print(array[1][0])
+
+
+checkPoints = np.array([(858, 906),
+                        (1380, 926),
+                        (1566, 720),
+                        (1576, 326),
+                        (1194, 344),
+                        (926, 338),
+                        (704, 338),
+                        (716, 722)])
+
+print(len(checkPoints))
+

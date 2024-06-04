@@ -6,10 +6,6 @@ import pandas as pd
 #-------------This test.py serves as an aux to test some functions--------------------------------
 
 def detect_cars(image):
-    matrix_reader = pd.read_csv('camera_matrixlinear.txt', delim_whitespace=True, header=None)
-    matrix_coefficients = matrix_reader.to_numpy()
-    dist_reader = pd.read_csv('dist_coeffslinear.txt', delim_whitespace=True, header=None)
-    distortion_coefficients= dist_reader.to_numpy()
     def detect_blue_cars(image):
         # Convert the image to HSV color space
         image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -234,9 +230,9 @@ def find_circle(img):
         img_closed, 
         cv2.HOUGH_GRADIENT, 
         dp=1.0, 
-        minDist=400, # Adjusted minimum distance between circles
-        param1=50, 
-        param2=30, 
+        minDist=50, # Adjusted minimum distance between circles
+        param1=100, 
+        param2=25, 
         minRadius=10, # Set a reasonable minimum radius
         maxRadius=30 # Set a reasonable maximum radius
     )
@@ -253,7 +249,7 @@ def find_circle(img):
             # Draw the outer circle
             cv2.circle(img, center, i[2], (0, 255, 0), 2)
             # Draw the center of the circle
-            cv2.circle(img, center, 2, (0, 0, 255), 3)
+            #cv2.circle(img, center, 2, (0, 0, 255), 3)
     
     return img, centers
 
@@ -264,26 +260,43 @@ circles, center= find_circle(image)
 centroids, circles = detect_cars(image)
 
 center = np.array(center)
-centroids = np.array(centroids)
+#centroids = np.array(centroids)
+
+cv2.circle(image, center[0], 2, (0, 0, 255), 3) #red
+cv2.circle(image, center[1], 2, (255, 0, 0), 3) #blue
+cv2.circle(image, center[2], 2, (0, 255, 0), 3) #green
+cv2.circle(image, center[3], 2, (0, 0, 0), 3)   #black
+cv2.circle(image, center[4], 2, (255, 255, 255), 3) #white
+cv2.circle(image, center[5], 2, (0, 222, 255), 3) #yellow
+cv2.circle(image, center[6], 2, (230, 0, 255), 3) #pink
+cv2.circle(image, center[7], 2, (230, 255, 0), 3) #baby blue
+
 
 #Difference between car coordinates and Origin coordinates
-centroids_origin = centroids -  center
+#centroids_origin = centroids -  center
 
 #Ratio of pixel to millimeter obtained in pixel2mm.py
 px2mm = 0.6337807227544455
 
-center_cm = (center/px2mm)/10 #centimeter
-centroids_cm = (centroids_origin/px2mm)/10 #centimeter
+#center_cm = (center/px2mm)/10 #centimeter
+#centroids_cm = (centroids_origin/px2mm)/10 #centimeter
 
-print("Origin coords: ", center_cm)
-print("Blue car: ", centroids_cm[0])
+'''print("Blue car: ", centroids_cm[0])
 print("Yellow car: ", centroids_cm[1])
-print("Pink car: ", centroids_cm[2])
+print("Pink car: ", centroids_cm[2])'''
+circles_organized = np.array([center[5],
+                              center[4],
+                              center[3],
+                              center[1],
+                              center[6],
+                              center[7],
+                              center[0],
+                              center[2]])
+
+print("Checkpoints:", circles_organized)
 
 im = cv2.resize(circles, (960, 540))
 cv2.imshow("Output", im)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
-
 
