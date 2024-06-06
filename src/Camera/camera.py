@@ -12,6 +12,7 @@ from utils.getCameras import get_available_cameras
 #pip install pygrabber==0.1
 from pygrabber.dshow_graph import FilterGraph
 from UDPsender import UDPSender
+from Trajectory import Trajectory
 
 class camera:
     def __init__(self, cameraConfig: str="camera", cameraName: str="GoPro Webcam", windowName: str="Frame") -> None:
@@ -333,45 +334,42 @@ class camera:
     def find_circle(self, img):
         # Convert image to gray
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        #show_image("Gray image", gray)
 
         # Adaptive thresholding for better binary conversion
         img_bin = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-        #show_image("Binary Image", img_bin)
 
         # Opening binary image to remove noise around the circles
         close_kernel = np.ones((3, 3), np.uint8)
         img_dilated = cv2.dilate(img_bin, close_kernel, iterations=1)
         img_closed = cv2.erode(img_dilated, close_kernel, iterations=1)
-        #show_image("Opened Image", img_closed)
 
         # Find circles using Hough Circle Transform
         circles = cv2.HoughCircles(
             img_closed, 
             cv2.HOUGH_GRADIENT, 
             dp=1.0, 
-            minDist=400, # Adjusted minimum distance between circles
+            minDist=100,  # Adjusted minimum distance between circles
             param1=50, 
-            param2=30, 
-            minRadius=10,
-            maxRadius=30
+            param2=25,  # Adjusted parameter for circle detection sensitivity
+            minRadius=15,
+            maxRadius=25
         )
 
         # List to store the centers of the circles
-        centers = np.array([])
+        centers = []
 
         # If circles are detected, draw them on the original image and store the centers
         if circles is not None:
             circles = np.uint16(np.around(circles))
             for i in circles[0, :]:
                 center = np.array([i[0], i[1]])
-                centers.append(center)
+                centers.append(center.tolist())  # Append as a list
                 # Draw the outer circle
-                cv2.circle(img, center, i[2], (0, 255, 0), 2)
+                cv2.circle(img, (i[0], i[1]), i[2], (0, 255, 0), 2)
                 # Draw the center of the circle
-                cv2.circle(img, center, 2, (0, 0, 255), 3)
-        
-        return img, centers
+                cv2.circle(img, (i[0], i[1]), 2, (0, 0, 255), 3)
+
+        return img, np.array(centers)
 #---------------------------------------------Display Live Frame-----------------------------------------
     
     def display(self):
@@ -394,66 +392,10 @@ class camera:
             cv2.putText(self.frame, fps, (7, 70), font, 3, (100, 255, 0), 3, cv2.LINE_AA) 
         #end-if-else
 
-        #--------------------------With ArUco Markers---------------------------------------------
-        '''matrix_reader = pd.read_csv('camera_matrixlinear.txt', delim_whitespace=True, header=None)
-        k = matrix_reader.to_numpy()
-        dist_reader = pd.read_csv('dist_coeffslinear.txt', delim_whitespace=True, header=None)
-        d = dist_reader.to_numpy()
-        aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
-
-        output, _ = self.pose_estimation(self.frame, aruco_dict, k, d)'''
-
-        #-----------------------With Color Detection-------------------------------------------------
         udpsender = UDPSender()
 
-        #Ratio of pixel to millimeter obtained in pixel2mm.py
-        px2mm = 0.6337807227544455
 
-        #Array of all the checkpoints obtained in test.py
-        checkPoints = np.array([(858, 906),
-                                (1380, 926),
-                                (1566, 720),
-                                (1576, 326),
-                                (1194, 344),
-                                (926, 338),
-                                (704, 338),
-                                (716, 722)])
-        
-        initial_center = None
-        center = None
-        
-        '''#loop to find the initial center
-        while initial_center is None:
-            _, initial_center = self.find_circle(self.frame)
-            if initial_center is not None:
-                center = initial_center
-                break
-            else:
-                print("Center not found, retrying...")
-        #print("Circle Center", center)'''
-        
-        centroids, res = self.detect_cars(self.frame)
-        
-        
-        '''#Difference between origin coordinates and car coordinates
-        centroids_origin_b = centroids[0] - center
-        centroids_origin_y = centroids[1] - center
-        centroids_origin_p = centroids[2] - center
-
-        #Ratio of pixel to millimeter obtained in pixel2mm.py
-        px2mm = 0.6337807227544455
-        
-        center_cm = (center/px2mm)/10 #centimeter
-        centroids_cm_b = (centroids_origin_b/px2mm)/10 #centimeter
-        centroids_cm_y = (centroids_origin_y/px2mm)/10
-        centroids_cm_p = (centroids_origin_p/px2mm)/10
-
-        print("Origin coords: ", center_cm)
-        print("Blue car: ", centroids_cm_b)
-        print("Yellow car: ", centroids_cm_y)
-        print("Pink car: ", centroids_cm_p)'''
-
-        cv2.imshow(self.windowName, res)
+        #cv2.imshow(self.windowName, self.frame)
 
         '''while(self.cap.isOpened()):
             udpsender.send_data("blue", blue_mm, 45.0)

@@ -160,7 +160,7 @@ if __name__ == "__main__":
         #------------------------
         #Adjust Resolution + Fov
         desiredResolution = gopro.resolutions["1080p"]
-        desiredFov = gopro.fovs["wide"]
+        desiredFov = gopro.fovs["linear"]
         
         gopro.startWebcam["params"]["res"] = desiredResolution
         gopro.startWebcam["params"]["fov"] = desiredFov

@@ -17,8 +17,8 @@ class Trajectory:
 
         self.next_circle_index = 0
         self.last_distance = 0.0
-        self.point_car_on_trajectory = np.array([0, 0, 0])
-        self.point_car_on_trajectory_short_distance = np.array([0, 0, 0])
+        self.point_car_on_trajectory = np.array([])
+        self.point_car_on_trajectory_short_distance = np.array([])
         self.num_laps = 0
         self.new_lap = True
 
@@ -35,7 +35,7 @@ class Trajectory:
         return angle_degrees
 
 
-    def shortest_point_to_curve(self, curve_point1 = np.array([0, 0, 0]), curve_point2 = np.array([0, 0, 0]), car_position = np.array([0, 0, 0])):
+    def shortest_point_to_curve(self, curve_point1 = np.array([]), curve_point2 = np.array([]), car_position = np.array([])):
         center = np.array([0, 0, 0])
         final_point1 = np.array([0, 0, 0])
         final_point2 = np.array([0, 0, 0])
@@ -146,10 +146,10 @@ class Trajectory:
         if not self.new_lap and self.last_short_dist_index == reset_arr:
             self.new_lap = True
 
-    def get_distance_to_trajectory(self, car_position = np.array([0, 0, 0])):
+    def get_distance_to_trajectory(self, car_position = np.array([])):
         return np.linalg.norm(self.point_car_on_trajectory_short_distance - car_position)
     
-    def checkReward(self, car_position = np.array([0, 0, 0])):
+    def checkReward(self, car_position = np.array([])):
         minDist = float('inf')
 
         # Identify where the car is on the track

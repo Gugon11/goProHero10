@@ -108,6 +108,24 @@ goProCamera.windowName = desiredResolutionName + " | " + desiredFovName
 
 changeParamsFlag = False
 
+#Reference image for translation vector calculation
+img_ref = cv2.imread("goProHero10/src/Camera/images/linear/img_checkpoints.png")
+
+#Ratio of pixel to millimeter obtained in pixel2mm.py
+px2mm = 0.6337807227544455
+
+_, circle = goProCamera.find_circle(img_ref)
+checkpoint_organized = np.array([circle[6],
+                             circle[4],
+                             circle[5],
+                             circle[2],
+                             circle[0],
+                             circle[3],
+                             circle[8],
+                             circle[7]])
+
+t_new = np.array([0, 0])
+
 
 if (goProCamera.cap.isOpened() is False):
     logging.error("Unable to open the camera ...")
@@ -118,7 +136,46 @@ else:
     while(goProCamera.cap.isOpened()):
         #Update the image on the frame:
         goProCamera.display()
+
+        # Ensure the resolution and FOV are set to 1080p and linear
+        if desiredResolutionName == "1080p" and desiredFovName == "linear":
+            res, center = goProCamera.find_circle(goProCamera.frame)
         
+            # Check if a circle was detected
+            if len(center) == 0:
+                center = np.array([0, 0]) #if no circle was detected, put center as [0, 0]
+            
+            t = center - circle[1]
+            
+            if not np.array_equal(t, -np.array([1636, 986])):  # If a valid center was detected
+                t_new = t
+            
+            #Position of the origin
+            origin_coords = circle[1] + t_new
+
+            #Array of all the checkpoints with the translation vector
+            checkPoints = checkpoint_organized + t_new
+            
+            centroids, res = goProCamera.detect_cars(res)
+
+            #Difference between car coordinates and origin coordinates
+            centroids_origin_b = centroids[0] - origin_coords
+            centroids_origin_y = centroids[1] - origin_coords
+            centroids_origin_p = centroids[2] - origin_coords
+
+            origin_cm = (origin_coords/px2mm)/10 #centimeter
+            centroids_cm_b = (centroids_origin_b/px2mm)/10 #centimeter
+            centroids_cm_y = (centroids_origin_y/px2mm)/10
+            centroids_cm_p = (centroids_origin_p/px2mm)/10
+
+            print("Origin coords: ", origin_cm)
+            print("Blue car: ", centroids_cm_b)
+            print("Yellow car: ", centroids_cm_y)
+            print("Pink car: ", centroids_cm_p)
+
+        cv2.imshow(goProCamera.windowName, res)
+
+
         #Check the Key presses:
         if (cv2.waitKey(1) & 0xFF == ord('q')):
             break

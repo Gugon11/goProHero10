@@ -156,7 +156,7 @@ def detect_cars(image):
                 if moments["m00"] != 0:
                     cX = int(moments["m10"] / moments["m00"])
                     cY = int(moments["m01"] / moments["m00"])
-                    if 600 <= cX <= 1650 and cY > 85:  # Check if centroid is within the specified bounds
+                    if 600 <= cX <= 1650 and 85 <= cY <= 990:  # Check if centroid is within the specified bounds
                         centroid = (cX, cY)
                         max_contour_area = area
         
@@ -231,7 +231,7 @@ def find_circle(img):
         cv2.HOUGH_GRADIENT, 
         dp=1.0, 
         minDist=50, # Adjusted minimum distance between circles
-        param1=100, 
+        param1=50, 
         param2=25, 
         minRadius=10, # Set a reasonable minimum radius
         maxRadius=30 # Set a reasonable maximum radius
@@ -253,7 +253,7 @@ def find_circle(img):
     
     return img, centers
 
-image = cv2.imread("goProHero10/src/Camera/images/linear/img_0000.png")
+image = cv2.imread("goProHero10/src/Camera/images/linear/img_checkpoints.png")
 #image = crop_img(image, 600, 80, 1000, 1200)
 
 circles, center= find_circle(image)
@@ -262,14 +262,15 @@ centroids, circles = detect_cars(image)
 center = np.array(center)
 #centroids = np.array(centroids)
 
-cv2.circle(image, center[0], 2, (0, 0, 255), 3) #red
-cv2.circle(image, center[1], 2, (255, 0, 0), 3) #blue
-cv2.circle(image, center[2], 2, (0, 255, 0), 3) #green
-cv2.circle(image, center[3], 2, (0, 0, 0), 3)   #black
-cv2.circle(image, center[4], 2, (255, 255, 255), 3) #white
-cv2.circle(image, center[5], 2, (0, 222, 255), 3) #yellow
-cv2.circle(image, center[6], 2, (230, 0, 255), 3) #pink
-cv2.circle(image, center[7], 2, (230, 255, 0), 3) #baby blue
+cv2.circle(circles, center[0], 2, (0, 0, 255), 3) #red
+cv2.circle(circles, center[1], 2, (255, 0, 0), 3) #blue
+cv2.circle(circles, center[2], 2, (0, 255, 0), 3) #green
+cv2.circle(circles, center[3], 2, (0, 0, 0), 3)   #black
+cv2.circle(circles, center[4], 2, (255, 255, 255), 3) #white
+cv2.circle(circles, center[5], 2, (0, 222, 255), 3) #yellow
+cv2.circle(circles, center[6], 2, (230, 0, 255), 3) #pink
+cv2.circle(circles, center[7], 2, (230, 255, 0), 3) #baby blue
+cv2.circle(circles, center[8], 2, (0, 111, 255), 3) #orange
 
 
 #Difference between car coordinates and Origin coordinates
@@ -284,14 +285,15 @@ px2mm = 0.6337807227544455
 '''print("Blue car: ", centroids_cm[0])
 print("Yellow car: ", centroids_cm[1])
 print("Pink car: ", centroids_cm[2])'''
-circles_organized = np.array([center[5],
+circles_organized = np.array([center[6],
                               center[4],
-                              center[3],
-                              center[1],
-                              center[6],
-                              center[7],
+                              center[5],
+                              center[2],
                               center[0],
-                              center[2]])
+                              center[3],
+                              center[8],
+                              center[7],
+                              center[1]])
 
 print("Checkpoints:", circles_organized)
 
