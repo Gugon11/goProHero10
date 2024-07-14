@@ -5,6 +5,7 @@ import threading
 import traceback
 import pandas as pd
 import numpy as np
+import time
 
 import cv2
 from cv2 import aruco
@@ -78,7 +79,7 @@ logging.info(f"Current Camera Status: {currentStatus}.")
 print(f"Current Camera Status: {currentStatus}.")
 #----------------------------------------------------------------
 #Path to save the output images (when the user presses key 'p')
-savePath = os.path.join(os.getcwd(), "goProHero10/src/Camera/images/linear")
+savePath = os.path.join(os.getcwd(), "goProHero10/src/Camera/img_cali")
 if (os.path.isdir(savePath) is not True):
     try:
         os.mkdir(savePath)
@@ -112,7 +113,11 @@ changeParamsFlag = False
 img_ref = cv2.imread("goProHero10/src/Camera/images/linear/img_checkpoints.png")
 
 #Ratio of pixel to millimeter obtained in pixel2mm.py
-px2mm = 0.6337807227544455
+px2mm = 0.44812778376576956
+
+# Initializing previous positions and times
+previous_positions = {'blue': None, 'yellow': None, 'pink': None}
+previous_times = {'blue': None, 'yellow': None, 'pink': None}
 
 _, circle = goProCamera.find_circle(img_ref)
 checkpoint_organized = np.array([circle[6],
@@ -158,20 +163,46 @@ else:
             
             centroids, res = goProCamera.detect_cars(res)
 
-            #Difference between car coordinates and origin coordinates
+            # Get current time
+            current_time = time.time()
+
+            for color, centroid in zip(['blue', 'yellow', 'pink'], centroids):
+                if centroid is not None and not np.array_equal(centroid, [0, 0]):
+                    # Calculate velocity
+                    if previous_positions[color] is not None and previous_times[color] is not None:
+                        dt = current_time - previous_times[color]
+                        velocity = goProCamera.calc_velocity(previous_positions[color], centroid, dt, px2mm)
+                        print(f"{color.capitalize()} car velocity (cm/s): {velocity}")
+
+                        # Calculate orientation
+                        orientation = goProCamera.calc_orientation(previous_positions[color], centroid)
+                        print(f"{color.capitalize()} car orientation (degrees): {orientation}")
+
+                    # Update previous position and time
+                    previous_positions[color] = centroid
+                    previous_times[color] = current_time
+
+                    #Convert centroid to real-world coordinates
+                    centroid_origin = ((centroid - origin_coords)/px2mm)/10 #convert to cm
+                    print(f"{color.capitalize()} car position (cm): {centroid_origin}")
+
+            '''#Difference between car coordinates and origin coordinates
             centroids_origin_b = centroids[0] - origin_coords
             centroids_origin_y = centroids[1] - origin_coords
             centroids_origin_p = centroids[2] - origin_coords
-
+            
+            #Coordinates in cm
             origin_cm = (origin_coords/px2mm)/10 #centimeter
             centroids_cm_b = (centroids_origin_b/px2mm)/10 #centimeter
             centroids_cm_y = (centroids_origin_y/px2mm)/10
             centroids_cm_p = (centroids_origin_p/px2mm)/10
 
+
+
             print("Origin coords: ", origin_cm)
             print("Blue car: ", centroids_cm_b)
             print("Yellow car: ", centroids_cm_y)
-            print("Pink car: ", centroids_cm_p)
+            print("Pink car: ", centroids_cm_p)'''
 
         cv2.imshow(goProCamera.windowName, res)
 

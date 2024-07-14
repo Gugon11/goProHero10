@@ -2,6 +2,7 @@ import os
 import numpy as np
 import cv2
 import pandas as pd
+import pickle
 
 from utils.config import readConfig
 
@@ -92,10 +93,16 @@ class camera:
 
     def pose_estimation(self, frame, aruco_dict, matrix_coefficients, distortion_coefficients):
         ret, frame = self.cap.read()
-        matrix_reader = pd.read_csv('camera_matrixlinear.txt', delim_whitespace=True, header=None)
-        matrix_coefficients = matrix_reader.to_numpy()
-        dist_reader = pd.read_csv('dist_coeffslinear.txt', delim_whitespace=True, header=None)
-        distortion_coefficients= dist_reader.to_numpy()
+        
+        # Load the camera matrix
+        with open("cameraMatrix.pkl", "rb") as f:
+            matrix_coefficients = pickle.load(f)
+
+        # Load the distortion coefficients
+        with open("distCoeffs.pkl", "rb") as f:
+            distortion_coefficients = pickle.load(f)
+
+
         aruco_dict=cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
         
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -109,8 +116,9 @@ class camera:
         if len(corners) > 0:
             for i in range(0, len(ids)):
                 # Estimate pose of each marker and return the values rvec and tvec---(different from those of camera coefficients)
-                rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.02, matrix_coefficients,
-                                                                        distortion_coefficients)
+                rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.02, 
+                                                                                matrix_coefficients,
+                                                                                distortion_coefficients)
                 
                 # Draw a square around the markers
                 cv2.aruco.drawDetectedMarkers(frame, corners)
@@ -370,6 +378,18 @@ class camera:
                 cv2.circle(img, (i[0], i[1]), 2, (0, 0, 255), 3)
 
         return img, np.array(centers)
+    
+    def calc_velocity(self, pos1, pos2, dt, px2mm):
+        displacement = ((np.array(pos1) - np.array(pos2))/px2mm)/10
+        velocity = displacement/dt #cm/s
+        return velocity
+    
+    def calc_orientation(self, point1, point2):
+        delta_y = point2[1] - point1[1]
+        delta_x = point2[0] - point1[0]
+        angle = np.arctan2(delta_y, delta_x) * 180 / np.pi  # Angle in degrees
+        return angle
+
 #---------------------------------------------Display Live Frame-----------------------------------------
     
     def display(self):

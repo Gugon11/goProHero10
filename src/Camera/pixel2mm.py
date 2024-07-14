@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
 
 def show_image(title, img):
     # Resize image to fit screen for better visualization
@@ -13,12 +14,12 @@ def crop_img(image, x, y, h, w):
     cropped_img = image[y:y+h, x:x+w]
     return cropped_img
 
+
 # Read image
 img = cv2.imread("goProHero10/src/Camera/images/linear/img_0006.png")
-img_crop = crop_img(img, 600, 80, 1000, 1200)
 
 # Convert image to grayscale
-img_gray = cv2.cvtColor(img_crop, cv2.COLOR_BGR2GRAY)
+img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 show_image("Grayscale Image", img_gray)
 
 # Convert images to binary for paper detection
@@ -48,7 +49,7 @@ for contour in image_contours:
         paper_contours.append(contour)
 
 # Draw all contours for debugging purposes
-img_contours = cv2.drawContours(img_crop.copy(), image_contours, -1, (0, 255, 0), 2)
+img_contours = cv2.drawContours(img.copy(), image_contours, -1, (0, 255, 0), 2)
 show_image("All Contours", img_contours)
 
 # If no paper-like contours are found, raise an error
@@ -59,7 +60,7 @@ if not paper_contours:
 largest_contour = max(paper_contours, key=cv2.contourArea)
 
 # Draw the largest paper-like contour
-img_largest_contour = cv2.drawContours(img_crop.copy(), [largest_contour], -1, (0, 0, 255), 2)
+img_largest_contour = cv2.drawContours(img.copy(), [largest_contour], -1, (0, 0, 255), 2)
 show_image("Largest Paper-Like Contour", img_largest_contour)
 
 # Approximate the contour with a 4-sided polygon
@@ -77,7 +78,7 @@ else:
     paper_coords = np.float32([top_left, top_right, bottom_right, bottom_left])
 
     # Draw the approximated contour
-    img_approx = cv2.drawContours(img_crop.copy(), [approx], -1, (255, 0, 0), 2)
+    img_approx = cv2.drawContours(img.copy(), [approx], -1, (255, 0, 0), 2)
     for point in paper_coords:
         cv2.drawMarker(img_approx, tuple(point.astype(int)), (0, 0, 255), markerType=cv2.MARKER_CROSS, 
                        markerSize=10, thickness=2, line_type=cv2.LINE_AA)
@@ -100,5 +101,5 @@ else:
     print("Transformation Matrix:")
     print(transform_matrix)
 
-    pixel_to_mm = dst_height / 210.0
+    pixel_to_mm = dst_height / 297.0
     print("Pixel to millimeter ratio =", pixel_to_mm, "pixels/mm")
