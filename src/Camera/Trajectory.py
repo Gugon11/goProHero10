@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class Trajectory:
     def __init__(self):
         

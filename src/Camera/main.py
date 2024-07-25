@@ -163,7 +163,7 @@ else:
             
             centroids, res = goProCamera.detect_cars(res)
 
-            # Get current time
+            '''# Get current time
             current_time = time.time()
 
             for color, centroid in zip(['blue', 'yellow', 'pink'], centroids):
@@ -184,9 +184,9 @@ else:
 
                     #Convert centroid to real-world coordinates
                     centroid_origin = ((centroid - origin_coords)/px2mm)/10 #convert to cm
-                    print(f"{color.capitalize()} car position (cm): {centroid_origin}")
+                    print(f"{color.capitalize()} car position (cm): {centroid_origin}")'''
 
-            '''#Difference between car coordinates and origin coordinates
+            #Difference between car coordinates and origin coordinates
             centroids_origin_b = centroids[0] - origin_coords
             centroids_origin_y = centroids[1] - origin_coords
             centroids_origin_p = centroids[2] - origin_coords
@@ -202,7 +202,7 @@ else:
             print("Origin coords: ", origin_cm)
             print("Blue car: ", centroids_cm_b)
             print("Yellow car: ", centroids_cm_y)
-            print("Pink car: ", centroids_cm_p)'''
+            print("Pink car: ", centroids_cm_p)
 
         cv2.imshow(goProCamera.windowName, res)
 
